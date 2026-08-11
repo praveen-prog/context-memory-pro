@@ -61,8 +61,6 @@
     .gps-zone:last-child { border-right:none; }
     .gps-marker { position:absolute; top:50%; transform:translate(-50%,-50%); font-size:16px; transition:left 2s ease; z-index:2; }
     .gps-step { font-size:10px; color:#555; margin-top:4px; text-align:center; }
-
-    /* Location overlay */
     .loc-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100; display:none; align-items:flex-end; justify-content:center; }
     .loc-overlay.show { display:flex; }
     .loc-sheet { background:white; border-radius:20px 20px 0 0; width:100%; max-width:480px; padding:16px; max-height:75vh; overflow-y:auto; }
@@ -78,39 +76,6 @@
     .loc-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
     .loc-badge { font-size:10px; padding:3px 8px; border-radius:10px; font-weight:500; }
     .loc-active-mark { color:#25D366; font-size:20px; }
-    .add-loc-btn { display:flex; align-items:center; gap:12px; padding:12px 0; cursor:pointer; color:#075E54; font-size:14px; font-weight:500; }
-    .add-loc-icon { width:44px; height:44px; border-radius:50%; border:2px dashed #075E54; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
-
-    /* Add location modal */
-    .add-loc-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
-    .add-loc-overlay.show { display:flex; }
-    .add-loc-modal { background:white; border-radius:16px; width:100%; max-width:440px; padding:20px; }
-    .add-loc-modal-title { font-size:16px; font-weight:600; color:#1a1a1a; margin-bottom:4px; }
-    .add-loc-modal-sub { font-size:12px; color:#999; margin-bottom:16px; }
-    .gps-captured { background:#E8F5E9; border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:8px; margin-bottom:16px; }
-    .gps-captured-icon { font-size:18px; }
-    .gps-captured-text { font-size:12px; color:#2e7d32; font-weight:500; }
-    .gps-captured-coords { font-size:10px; color:#555; margin-top:2px; }
-    .field-label { font-size:12px; font-weight:500; color:#333; margin-bottom:6px; }
-    .name-row { display:flex; gap:8px; margin-bottom:16px; }
-    .name-input { flex:1; border:1.5px solid #ddd; border-radius:10px; padding:10px 14px; font-size:14px; outline:none; transition:border 0.2s; }
-    .name-input:focus { border-color:#075E54; }
-    .voice-btn { width:44px; height:44px; background:#25D366; color:white; border:none; border-radius:50%; font-size:18px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-    .voice-btn.listening { background:#f44336; animation:pulse 1s infinite; }
-    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-    .radius-label { font-size:12px; font-weight:500; color:#333; margin-bottom:8px; }
-    .radius-options { display:flex; gap:8px; margin-bottom:20px; }
-    .radius-opt { flex:1; padding:8px 4px; border:1.5px solid #ddd; border-radius:10px; text-align:center; cursor:pointer; transition:all 0.2s; }
-    .radius-opt.active { border-color:#075E54; background:#E8F5E9; }
-    .radius-opt-icon { font-size:18px; display:block; margin-bottom:2px; }
-    .radius-opt-name { font-size:11px; font-weight:500; color:#333; }
-    .radius-opt-dist { font-size:10px; color:#999; }
-    .radius-opt.active .radius-opt-name { color:#075E54; }
-    .modal-btns { display:flex; gap:8px; }
-    .cancel-btn { flex:1; padding:12px; border:1.5px solid #ddd; border-radius:10px; background:white; color:#333; font-size:14px; cursor:pointer; }
-    .save-btn-modal { flex:2; padding:12px; border:none; border-radius:10px; background:#075E54; color:white; font-size:14px; font-weight:500; cursor:pointer; }
-    .save-btn-modal:disabled { background:#ccc; cursor:not-allowed; }
-
     .install-banner { background:#1a1a2e; color:white; padding:10px 16px; display:none; align-items:center; gap:10px; flex-shrink:0; }
     .install-banner.show { display:flex; }
     .install-text { flex:1; font-size:12px; }
@@ -118,6 +83,7 @@
     .input-bar { background:#F0F0F0; padding:8px 10px; display:flex; gap:8px; align-items:center; flex-shrink:0; border-top:0.5px solid #ddd; }
     .mic-btn { width:40px; height:40px; background:#25D366; color:white; border:none; border-radius:50%; font-size:18px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
     .mic-btn.listening { background:#f44336; animation:pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
     .task-input { flex:1; background:white; border:none; border-radius:20px; padding:10px 16px; font-size:13px; outline:none; }
     .send-btn { width:40px; height:40px; background:#075E54; color:white; border:none; border-radius:50%; font-size:16px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
   </style>
@@ -149,7 +115,7 @@
 <div class="action-bar">
   <button class="action-btn" onclick="startSimulation()">▶ Simulate</button>
   <button class="action-btn" onclick="startRealGPS()">📍 Real GPS</button>
-  <button class="action-btn" onclick="showHistory()">📜 History</button>
+  <button class="action-btn" onclick="requestNotify()">🔔 Notify</button>
   <button class="action-btn" onclick="resetDemo()">↺ Reset</button>
 </div>
 
@@ -163,7 +129,6 @@
   <div class="bs">Tap the location button above to get started 📍</div>
 </div>
 
-<!-- Location selector overlay -->
 <div class="loc-overlay" id="loc-overlay" onclick="hideLocationSelector()">
   <div class="loc-sheet" onclick="event.stopPropagation()">
     <div class="loc-sheet-title">
@@ -172,61 +137,6 @@
     </div>
     <div class="loc-sheet-sub">Tap a location to switch your active checklist</div>
     <div id="loc-list">Loading...</div>
-    <div class="add-loc-btn" onclick="showAddLocation()">
-      <div class="add-loc-icon">+</div>
-      <span>Add new location</span>
-    </div>
-  </div>
-</div>
-
-<!-- Add location modal -->
-<div class="add-loc-overlay" id="add-loc-overlay">
-  <div class="add-loc-modal" onclick="event.stopPropagation()">
-    <div class="add-loc-modal-title">Add new location</div>
-    <div class="add-loc-modal-sub">Your GPS coordinates will be saved as the geofence center</div>
-
-    <div class="gps-captured" id="gps-captured">
-      <div class="gps-captured-icon">📍</div>
-      <div>
-        <div class="gps-captured-text" id="gps-status-text">Capturing GPS...</div>
-        <div class="gps-captured-coords" id="gps-status-coords"></div>
-      </div>
-    </div>
-
-    <div class="field-label">Name this place</div>
-    <div class="name-row">
-      <input class="name-input" id="new-loc-name" placeholder="e.g. My Office, Apollo Hospital" />
-      <button class="voice-btn" id="loc-voice-btn" onclick="toggleLocVoice()">🎤</button>
-    </div>
-
-    <div class="radius-label">Geofence type</div>
-    <div class="radius-options">
-      <div class="radius-opt" id="r-home" onclick="selectRadius('home', 50)">
-        <span class="radius-opt-icon">🏠</span>
-        <div class="radius-opt-name">Home</div>
-        <div class="radius-opt-dist">50m</div>
-      </div>
-      <div class="radius-opt active" id="r-office" onclick="selectRadius('office', 100)">
-        <span class="radius-opt-icon">💼</span>
-        <div class="radius-opt-name">Office</div>
-        <div class="radius-opt-dist">100m</div>
-      </div>
-      <div class="radius-opt" id="r-store" onclick="selectRadius('store', 150)">
-        <span class="radius-opt-icon">🛒</span>
-        <div class="radius-opt-name">Store</div>
-        <div class="radius-opt-dist">150m</div>
-      </div>
-      <div class="radius-opt" id="r-hospital" onclick="selectRadius('hospital', 100)">
-        <span class="radius-opt-icon">🏥</span>
-        <div class="radius-opt-name">Hospital</div>
-        <div class="radius-opt-dist">100m</div>
-      </div>
-    </div>
-
-    <div class="modal-btns">
-      <button class="cancel-btn" onclick="hideAddLocation()">Cancel</button>
-      <button class="save-btn-modal" id="save-loc-btn" onclick="saveNewLocation()">Save location</button>
-    </div>
   </div>
 </div>
 
@@ -238,7 +148,7 @@
 
 <script>
 var API = 'https://uw4aoqlpr4.execute-api.us-east-1.amazonaws.com';
-// var API = 'http://localhost:8002'; // local
+//var API = 'http://localhost:8003';
 var USER_ID = '';
 var LOCATION_ID = '';
 var LOCATION_LAT = 12.9818475;
@@ -255,11 +165,6 @@ var notifyEnabled = false;
 var deferredPrompt = null;
 var recognition = null;
 var isListening = false;
-var locRecognition = null;
-var isLocListening = false;
-var newLocLat = null;
-var newLocLng = null;
-var newLocRadius = 100;
 
 var LOC_EMOJIS = {'home':'🏠','dmart':'🛒','hospital':'🏥','apollo':'🏥','office':'💼','school':'🏫','gym':'💪','airport':'✈️','default':'📍'};
 var LOC_COLORS = {'home':'#E8F5E9','dmart':'#FFF3E0','hospital':'#E3F2FD','apollo':'#E3F2FD','office':'#F3E5F5','default':'#F5F5F5'};
@@ -283,27 +188,29 @@ function getLocType(name) {
   return 'default';
 }
 
+// GPS zones — same for all non-home locations
+// Shows the journey: Start → Travel → Near → Inside → Exit
 var ZONE_HOME = ['🛏 Inside','🚶 Door','🚪 Exit','🌤 Outside','🏙 Away'];
 var ZONE_OTHER = ['🏠 Start','🚗 Travel','📍 Near','✅ Inside','🚪 Exit'];
 
 var GPS_STEPS_HOME = [
-  {left:'5%',  label:'🏠 Inside home',      event:null,      delay:4000},
-  {left:'22%', label:'🚶 Moving to door',    event:null,      delay:4000},
-  {left:'42%', label:'🚪 At front door',     event:null,      delay:4000},
-  {left:'58%', label:'🚨 Leaving home!',     event:'exit',    delay:7000},
-  {left:'75%', label:'🌤 Outside',           event:null,      delay:4000},
-  {left:'92%', label:'🏙 On the way',        event:null,      delay:4000},
+  {left:'5%',  label:'🏠 Inside home',         event:null,      delay:4000},
+  {left:'22%', label:'🚶 Moving to door',       event:null,      delay:4000},
+  {left:'42%', label:'🚪 At front door',        event:null,      delay:4000},
+  {left:'58%', label:'🚨 Leaving home!',        event:'exit',    delay:7000},
+  {left:'75%', label:'🌤 Outside',              event:null,      delay:4000},
+  {left:'92%', label:'🏙 On the way',           event:null,      delay:4000},
 ];
 var GPS_STEPS_OTHER = [
-  {left:'5%',  label:'🏠 Starting journey',  event:null,      delay:4000},
-  {left:'22%', label:'🚗 Traveling...',       event:null,      delay:4000},
-  {left:'40%', label:'📍 Getting closer',     event:null,      delay:4000},
-  {left:'56%', label:'✅ Arrived!',           event:'arrival', delay:7000},
-  {left:'60%', label:'🛒 Inside...',          event:null,      delay:7000},
-  {left:'58%', label:'⏱ Still here (10min)', event:'dwell',   delay:7000},
-  {left:'68%', label:'🚶 Heading to exit',    event:null,      delay:4000},
-  {left:'78%', label:'🚨 Leaving!',          event:'exit',    delay:7000},
-  {left:'92%', label:'🏠 Heading back',      event:null,      delay:4000},
+  {left:'5%',  label:'🏠 Starting journey',     event:null,      delay:4000},
+  {left:'22%', label:'🚗 Traveling...',          event:null,      delay:4000},
+  {left:'40%', label:'📍 Getting closer',        event:null,      delay:4000},
+  {left:'56%', label:'✅ Arrived!',              event:'arrival', delay:7000},
+  {left:'60%', label:'🛒 Inside...',             event:null,      delay:7000},
+  {left:'58%', label:'⏱ Still here (10 min)',   event:'dwell',   delay:7000},
+  {left:'68%', label:'🚶 Heading to exit',       event:null,      delay:4000},
+  {left:'78%', label:'🚨 Leaving!',             event:'exit',    delay:7000},
+  {left:'92%', label:'🏠 Heading back',         event:null,      delay:4000},
 ];
 
 setInterval(function() {
@@ -326,8 +233,7 @@ async function init() {
     USER_ID = data.user_id;
     await loadLocations();
     if (LOCATIONS.length > 0) selectLocation(LOCATIONS[0]);
-    showStats();
-  } catch(e) { addSystem('Connecting...'); }
+  } catch(e) { addSystem('Loading...'); }
 }
 
 async function loadLocations() {
@@ -369,7 +275,7 @@ function selectLocation(loc) {
   document.getElementById('loc-avatar').textContent = emoji;
   document.getElementById('loc-avatar').style.background = color;
   document.getElementById('loc-btn-text').textContent = loc.name;
-  document.getElementById('gps-label').textContent = 'GPS ready — '+loc.name;
+  document.getElementById('gps-label').textContent = 'GPS ready - '+loc.name;
   hideLocationSelector();
   document.getElementById('chat').innerHTML =
     '<div class="date-div"><span>Today</span></div>' +
@@ -381,103 +287,6 @@ function selectLocation(loc) {
 function showLocationSelector() { renderLocationList(); document.getElementById('loc-overlay').classList.add('show'); }
 function hideLocationSelector() { document.getElementById('loc-overlay').classList.remove('show'); }
 
-// ── Add location ──────────────────────────────────────────
-function showAddLocation() {
-  hideLocationSelector();
-  newLocLat = null; newLocLng = null;
-  document.getElementById('new-loc-name').value = '';
-  document.getElementById('gps-status-text').textContent = 'Capturing GPS...';
-  document.getElementById('gps-status-coords').textContent = '';
-  document.getElementById('save-loc-btn').disabled = true;
-  document.getElementById('add-loc-overlay').classList.add('show');
-  selectRadius('office', 100);
-
-  if (!navigator.geolocation) {
-    document.getElementById('gps-status-text').textContent = 'GPS not supported';
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      newLocLat = pos.coords.latitude;
-      newLocLng = pos.coords.longitude;
-      document.getElementById('gps-status-text').textContent = '✓ GPS captured';
-      document.getElementById('gps-status-coords').textContent = newLocLat.toFixed(4)+'°N '+newLocLng.toFixed(4)+'°E';
-      document.getElementById('save-loc-btn').disabled = false;
-    },
-    function(err) {
-      document.getElementById('gps-status-text').textContent = 'GPS error — enter manually';
-      document.getElementById('gps-status-coords').textContent = err.message;
-      document.getElementById('save-loc-btn').disabled = false;
-    },
-    {enableHighAccuracy:true, timeout:15000}
-  );
-}
-
-function hideAddLocation() {
-  document.getElementById('add-loc-overlay').classList.remove('show');
-}
-
-function selectRadius(type, radius) {
-  newLocRadius = radius;
-  ['home','office','store','hospital'].forEach(function(t) {
-    document.getElementById('r-'+t).classList.remove('active');
-  });
-  document.getElementById('r-'+type).classList.add('active');
-}
-
-async function saveNewLocation() {
-  var name = document.getElementById('new-loc-name').value.trim();
-  if (!name) { document.getElementById('new-loc-name').focus(); return; }
-  if (!newLocLat && !newLocLng) {
-    alert('GPS not captured yet. Please wait or try again.');
-    return;
-  }
-
-  var btn = document.getElementById('save-loc-btn');
-  btn.textContent = 'Saving...';
-  btn.disabled = true;
-
-  var res = await fetch(API+'/location/add', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      user_id: USER_ID,
-      name: name,
-      lat: newLocLat || LOCATION_LAT,
-      lng: newLocLng || LOCATION_LNG,
-      radius_meters: newLocRadius,
-      address: ''
-    })
-  });
-  var data = await res.json();
-
-  btn.textContent = 'Save location';
-  btn.disabled = false;
-  hideAddLocation();
-
-  await loadLocations();
-  var newLoc = LOCATIONS.find(function(l){return l.id === data.location.id;});
-  if (newLoc) selectLocation(newLoc);
-
-  addSystem('📍 '+name+' added — tap 🎤 to add reminders!');
-}
-
-function toggleLocVoice() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-  if (isLocListening) { locRecognition.stop(); return; }
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  locRecognition = new SR();
-  locRecognition.continuous = false; locRecognition.interimResults = true; locRecognition.lang = 'en-US';
-  locRecognition.onstart = function() { isLocListening=true; document.getElementById('loc-voice-btn').classList.add('listening'); };
-  locRecognition.onresult = function(e) {
-    var t = Array.from(e.results).map(function(r){return r[0].transcript;}).join('');
-    document.getElementById('new-loc-name').value = t;
-  };
-  locRecognition.onend = function() { isLocListening=false; document.getElementById('loc-voice-btn').classList.remove('listening'); };
-  locRecognition.onerror = function() { isLocListening=false; document.getElementById('loc-voice-btn').classList.remove('listening'); };
-  locRecognition.start();
-}
-
-// ── Chat helpers ──────────────────────────────────────────
 function addSystem(text) {
   var chat = document.getElementById('chat');
   var d = document.createElement('div');
@@ -517,7 +326,10 @@ function addGPSBubble() {
   var zonesHTML = zones.map(function(z){return '<div class="gps-zone">'+z+'</div>';}).join('');
   d.innerHTML =
     '<div class="gps-title"><span>📍 '+LOCATION_NAME+'</span><span id="gps-coords">--</span></div>' +
-    '<div class="gps-track"><div class="gps-zones">'+zonesHTML+'</div><div class="gps-marker" id="gps-marker" style="left:5%">👤</div></div>' +
+    '<div class="gps-track">' +
+      '<div class="gps-zones">'+zonesHTML+'</div>' +
+      '<div class="gps-marker" id="gps-marker" style="left:5%">👤</div>' +
+    '</div>' +
     '<div class="gps-step" id="gps-step">Ready — tap Real GPS or Simulate</div>';
   chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
 }
@@ -576,9 +388,12 @@ function startRealGPS() {
       if (!isNaN(dist)) {
         document.getElementById('gps-step').textContent = Math.round(dist)+'m from '+LOCATION_NAME;
         var marker = document.getElementById('gps-marker');
-        if (marker) { var pct = dist < LOCATION_RADIUS ? 60 : Math.max(5, 50-(dist/200)*10); marker.style.left = pct+'%'; }
+        if (marker) {
+          var pct = dist < LOCATION_RADIUS ? 60 : Math.max(5, 50 - (dist/200)*10);
+          marker.style.left = pct + '%';
+        }
       }
-      var isHome = getLocType(LOCATION_NAME)==='home';
+      var isHome = getLocType(LOCATION_NAME) === 'home';
       if (isHome) {
         if (dist < LOCATION_RADIUS && !insideZone) { insideZone=true; addSystem('🏠 You are home'); triggerEvent('arrival',lat,lng); }
         else if (dist > LOCATION_RADIUS*1.5 && insideZone) { insideZone=false; addSystem('🚨 Leaving home!'); triggerEvent('exit',lat,lng); }
@@ -641,7 +456,8 @@ async function completeTask(taskId, btn) {
     newMark.className = 'done-mark'; newMark.innerHTML = '✓';
     btn.parentNode.replaceChild(newMark, btn);
   }
-  loadLocations(); sendPush('done','Item checked — good to go!');
+  loadLocations();
+  sendPush('done','Item checked - good to go!');
 }
 
 async function addTask() {
@@ -661,7 +477,7 @@ async function saveTask(title) {
 }
 
 function toggleVoice() {
-  if (!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)) { addSystem('Voice not supported — use Chrome or Safari'); return; }
+  if (!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)) { addSystem('Voice not supported - use Chrome or Safari'); return; }
   if (isListening) { recognition.stop(); return; }
   var SR = window.SpeechRecognition||window.webkitSpeechRecognition;
   recognition = new SR();
@@ -696,7 +512,7 @@ function requestNotify() {
   if (!('Notification' in window)) { addSystem('Notifications not supported here'); return; }
   Notification.requestPermission().then(function(p){
     if (p==='granted') { notifyEnabled=true; addSystem('🔔 Notifications enabled!'); new Notification('Context Memory',{body:'You will receive reminders at the right moment!'}); }
-    else { addSystem('Notifications blocked — check browser settings'); }
+    else { addSystem('Notifications blocked - check browser settings'); }
   });
 }
 
@@ -720,57 +536,7 @@ async function resetDemo() {
   loadTaskBubble(); addGPSBubble(); loadLocations();
 }
 
-
-async function showHistory() {
-  document.getElementById('history-overlay').classList.add('show');
-  var res = await fetch(API+'/search/history/'+USER_ID);
-  var data = await res.json();
-  var list = document.getElementById('history-list');
-  if (!data.history || !data.history.length) {
-    list.innerHTML = '<div style="text-align:center;color:#999;padding:20px">No nudges yet — simulate a journey!</div>';
-    return;
-  }
-  var icons = {arrival:'📍', dwell:'⏰', exit:'🚨'};
-  list.innerHTML = data.history.map(function(h) {
-    var d = new Date(h.time);
-    var timeStr = d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    return '<div style="padding:10px 0;border-bottom:0.5px solid #f0f0f0">' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
-        '<span style="font-size:16px">'+(icons[h.trigger]||'🔔')+'</span>' +
-        '<span style="font-size:12px;font-weight:500;color:#075E54">'+h.location+'</span>' +
-        '<span style="font-size:10px;color:#999;margin-left:auto">'+timeStr+'</span>' +
-      '</div>' +
-      '<div style="font-size:13px;color:#333;margin-left:24px">'+h.message+'</div>' +
-      '<div style="font-size:10px;color:#999;margin-left:24px;margin-top:2px">'+h.trigger+' · '+h.task+'</div>' +
-    '</div>';
-  }).join('');
-}
-
-function hideHistory() {
-  document.getElementById('history-overlay').classList.remove('show');
-}
-
-async function showStats() {
-  var res = await fetch(API+'/stats/'+USER_ID);
-  var data = await res.json();
-  console.log('Stats:', data);
-  addSystem('📊 '+data.locations+' locations · '+data.total_tasks+' tasks · '+data.nudges_fired+' nudges fired');
-}
-
-
 init();
 </script>
-
-<div class="loc-overlay" id="history-overlay" onclick="hideHistory()">
-  <div class="loc-sheet" onclick="event.stopPropagation()">
-    <div class="loc-sheet-title">
-      <span>📜 Nudge history</span>
-      <span onclick="hideHistory()" style="cursor:pointer;color:#999;font-size:24px">&times;</span>
-    </div>
-    <div class="loc-sheet-sub">All reminders fired across your locations</div>
-    <div id="history-list">Loading...</div>
-  </div>
-</div>
-
 </body>
 </html>

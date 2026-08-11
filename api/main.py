@@ -58,4 +58,30 @@ def serve_ui():
 
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
+
+@app.get("/stats/{user_id}")
+def get_stats(user_id: str):
+    from db_connection import get_connection
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM locations WHERE user_id = %s", (user_id,))
+    locations = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM tasks WHERE user_id = %s", (user_id,))
+    total_tasks = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM tasks WHERE user_id = %s AND status = 'pending'", (user_id,))
+    pending = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM nudge_events WHERE user_id = %s", (user_id,))
+    nudges = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM location_events WHERE user_id = %s", (user_id,))
+    events = cur.fetchone()[0]
+    conn.close()
+    return {
+        "locations": locations,
+        "total_tasks": total_tasks,
+        "pending_tasks": pending,
+        "completed_tasks": total_tasks - pending,
+        "nudges_fired": nudges,
+        "gps_events": events
+    }
+    
 handler = Mangum(app)
