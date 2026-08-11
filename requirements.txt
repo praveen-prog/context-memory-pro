@@ -8,3 +8,4 @@ python-multipart
 mangum
 boto3
 botocore
+huggingface_hub
