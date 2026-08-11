@@ -7,3 +7,5 @@ __pycache__/
 .env
 start.py
 notes.txt
+test_*.py 
+check_*.py 
