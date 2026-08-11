@@ -9,3 +9,4 @@ mangum
 boto3
 botocore
 huggingface_hub
+numpy
