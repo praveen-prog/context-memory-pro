@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
-from api.routes import location, tasks, nudge, auth
+from api.routes import location, tasks, nudge, auth, search
 
 app = FastAPI(title="Context Memory Pro API")
 
@@ -18,6 +18,7 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(location.router, prefix="/location", tags=["location"])
 app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 app.include_router(nudge.router, prefix="/nudge", tags=["nudge"])
+app.include_router(search.router, prefix="/search", tags=["search"])
 
 @app.get("/health")
 def health():
