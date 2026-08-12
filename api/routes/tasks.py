@@ -62,3 +62,34 @@ def get_tasks(user_id: str, location_id: str):
     rows = cur.fetchall()
     conn.close()
     return {"tasks": [{"id": str(r[0]), "title": r[1], "description": r[2], "status": r[3], "priority": r[4]} for r in rows]}
+
+class TaskUpdate(BaseModel):
+    task_id: str
+    user_id: str
+    title: str
+
+@router.put("/update")
+def update_task(payload: TaskUpdate):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s RETURNING title",
+                (payload.title, payload.task_id, payload.user_id))
+    row = cur.fetchone()
+    conn.commit()
+    conn.close()
+    return {"status": "updated", "title": row[0] if row else None}
+
+class TaskDelete(BaseModel):
+    task_id: str
+    user_id: str
+
+@router.delete("/delete")
+def delete_task(payload: TaskDelete):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM tasks WHERE id = %s AND user_id = %s RETURNING title",
+                (payload.task_id, payload.user_id))
+    row = cur.fetchone()
+    conn.commit()
+    conn.close()
+    return {"status": "deleted", "task": row[0] if row else None}

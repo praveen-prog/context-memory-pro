@@ -46,13 +46,21 @@
     .task-bubble { width: 88%; background: white; align-self: flex-start; border-radius: 8px; border-top-left-radius: 0; padding: 10px 12px; position: relative; }
     .task-bubble::before { content:''; position:absolute; left:-7px; top:0; border:7px solid transparent; border-right-color:white; border-top-color:white; }
     .task-header { font-size:12px; font-weight:600; color:#075E54; margin-bottom:8px; }
-    .task-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:0.5px solid #f0f0f0; font-size:13px; transition: opacity 0.3s; }
+    .task-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:0.5px solid #f0f0f0; font-size:13px; transition: opacity 0.3s; gap:4px; }
     .task-row:last-of-type { border-bottom:none; }
     .task-row.done { opacity:0.4; text-decoration:line-through; }
-    .check-btn { background:#25D366; color:white; border:none; border-radius:16px; padding:4px 12px; font-size:11px; cursor:pointer; white-space:nowrap; transition: all 0.2s; }
+    .task-title { flex:1; }
+    .task-btns { display:flex; gap:4px; flex-shrink:0; }
+    .check-btn { background:#25D366; color:white; border:none; border-radius:16px; padding:4px 10px; font-size:11px; cursor:pointer; white-space:nowrap; }
     .check-btn:active { background:#1da851; transform: scale(0.95); }
+    .edit-btn { background:#f0f0f0; color:#555; border:none; border-radius:16px; padding:4px 8px; font-size:11px; cursor:pointer; }
+    .edit-btn:active { background:#ddd; }
     .done-mark { color:#25D366; font-size:16px; font-weight:bold; }
     .task-footer { font-size:9px; color:#999; margin-top:6px; text-align:right; }
+    .edit-row { display:flex; gap:4px; align-items:center; padding:4px 0; width:100%; }
+    .edit-input-field { flex:1; border:1.5px solid #075E54; border-radius:8px; padding:5px 8px; font-size:12px; outline:none; }
+    .edit-save-btn { background:#075E54; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:11px; cursor:pointer; }
+    .edit-cancel-btn { background:#f44336; color:white; border:none; border-radius:8px; padding:5px 8px; font-size:11px; cursor:pointer; }
     .gps-bubble { width:90%; background:#E8F5E9; align-self:center; border-radius:8px; padding:8px 12px; margin:4px 0; }
     .gps-title { font-size:11px; font-weight:600; color:#2e7d32; display:flex; justify-content:space-between; margin-bottom:6px; }
     .gps-track { position:relative; height:36px; background:linear-gradient(to right,#e3f2fd,#e8f5e9,#fff3e0,#ffebee); border-radius:6px; overflow:hidden; }
@@ -61,8 +69,6 @@
     .gps-zone:last-child { border-right:none; }
     .gps-marker { position:absolute; top:50%; transform:translate(-50%,-50%); font-size:16px; transition:left 2s ease; z-index:2; }
     .gps-step { font-size:10px; color:#555; margin-top:4px; text-align:center; }
-
-    /* Location overlay */
     .loc-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100; display:none; align-items:flex-end; justify-content:center; }
     .loc-overlay.show { display:flex; }
     .loc-sheet { background:white; border-radius:20px 20px 0 0; width:100%; max-width:480px; padding:16px; max-height:75vh; overflow-y:auto; }
@@ -80,13 +86,14 @@
     .loc-active-mark { color:#25D366; font-size:20px; }
     .add-loc-btn { display:flex; align-items:center; gap:12px; padding:12px 0; cursor:pointer; color:#075E54; font-size:14px; font-weight:500; }
     .add-loc-icon { width:44px; height:44px; border-radius:50%; border:2px dashed #075E54; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
-
-    /* Add location modal */
     .add-loc-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
     .add-loc-overlay.show { display:flex; }
-    .add-loc-modal { background:white; border-radius:16px; width:100%; max-width:440px; padding:20px; }
-    .add-loc-modal-title { font-size:16px; font-weight:600; color:#1a1a1a; margin-bottom:4px; }
-    .add-loc-modal-sub { font-size:12px; color:#999; margin-bottom:16px; }
+    .add-loc-modal { background:white; border-radius:16px; width:100%; max-width:440px; padding:20px; max-height:90vh; overflow-y:auto; }
+    .add-loc-modal-title { font-size:16px; font-weight:600; color:#1a1a1a; margin-bottom:12px; }
+    .tab-row { display:flex; gap:8px; margin-bottom:16px; }
+    .tab-btn { flex:1; padding:8px; border-radius:8px; font-size:12px; cursor:pointer; font-weight:500; transition: all 0.2s; }
+    .tab-btn.active { background:#075E54; color:white; border:1.5px solid #075E54; }
+    .tab-btn.inactive { background:white; color:#333; border:1.5px solid #ddd; }
     .gps-captured { background:#E8F5E9; border-radius:8px; padding:10px 12px; display:flex; align-items:center; gap:8px; margin-bottom:16px; }
     .gps-captured-icon { font-size:18px; }
     .gps-captured-text { font-size:12px; color:#2e7d32; font-weight:500; }
@@ -110,7 +117,13 @@
     .cancel-btn { flex:1; padding:12px; border:1.5px solid #ddd; border-radius:10px; background:white; color:#333; font-size:14px; cursor:pointer; }
     .save-btn-modal { flex:2; padding:12px; border:none; border-radius:10px; background:#075E54; color:white; font-size:14px; font-weight:500; cursor:pointer; }
     .save-btn-modal:disabled { background:#ccc; cursor:not-allowed; }
-
+    .search-input-row { display:flex; gap:8px; margin-bottom:8px; }
+    .search-input { flex:1; border:1.5px solid #ddd; border-radius:10px; padding:10px 14px; font-size:13px; outline:none; }
+    .search-input:focus { border-color:#075E54; }
+    .search-btn { padding:10px 16px; background:#075E54; color:white; border:none; border-radius:10px; font-size:13px; cursor:pointer; white-space:nowrap; }
+    .place-result-item { padding:10px; border-bottom:0.5px solid #f0f0f0; cursor:pointer; transition:background 0.1s; }
+    .place-result-item:hover { background:#f9f9f9; }
+    .place-result-item:last-child { border-bottom:none; }
     .install-banner { background:#1a1a2e; color:white; padding:10px 16px; display:none; align-items:center; gap:10px; flex-shrink:0; }
     .install-banner.show { display:flex; }
     .install-text { flex:1; font-size:12px; }
@@ -123,654 +136,376 @@
   </style>
 </head>
 <body>
-
-<div class="status-bar">
-  <span id="clock">12:00</span>
-  <span>GPS</span>
-</div>
-
+<div class="status-bar"><span id="clock">12:00</span><span>GPS</span></div>
 <header>
   <div class="avatar" id="loc-avatar">📍</div>
-  <div class="hinfo">
-    <div class="hname">Context Memory</div>
-  </div>
+  <div class="hinfo"><div class="hname">Context Memory</div></div>
   <button class="loc-btn" onclick="showLocationSelector()" id="loc-btn">
-    <span class="loc-btn-text" id="loc-btn-text">Select location</span>
-    <span>▾</span>
+    <span class="loc-btn-text" id="loc-btn-text">Select location</span><span>▾</span>
   </button>
   <div class="hicons">🔍 ⋮</div>
 </header>
-
-<div class="gps-bar">
-  <div class="gps-dot" id="gps-dot"></div>
-  <span id="gps-label">Select a location to start</span>
-</div>
-
+<div class="gps-bar"><div class="gps-dot" id="gps-dot"></div><span id="gps-label">Select a location to start</span></div>
 <div class="action-bar">
   <button class="action-btn" onclick="startSimulation()">▶ Simulate</button>
   <button class="action-btn" onclick="startRealGPS()">📍 Real GPS</button>
   <button class="action-btn" onclick="showHistory()">📜 History</button>
   <button class="action-btn" onclick="resetDemo()">↺ Reset</button>
 </div>
-
 <div class="install-banner" id="install-banner">
   <div class="install-text">Add to Home Screen for full experience</div>
   <button class="install-btn" onclick="installPWA()">Install App</button>
 </div>
-
 <div class="chat" id="chat">
   <div class="date-div"><span>Today</span></div>
   <div class="bs">Tap the location button above to get started 📍</div>
 </div>
-
-<!-- Location selector overlay -->
+<!-- Location selector -->
 <div class="loc-overlay" id="loc-overlay" onclick="hideLocationSelector()">
   <div class="loc-sheet" onclick="event.stopPropagation()">
-    <div class="loc-sheet-title">
-      <span>Switch location</span>
-      <span onclick="hideLocationSelector()" style="cursor:pointer;color:#999;font-size:24px">&times;</span>
-    </div>
+    <div class="loc-sheet-title"><span>Switch location</span><span onclick="hideLocationSelector()" style="cursor:pointer;color:#999;font-size:24px">&times;</span></div>
     <div class="loc-sheet-sub">Tap a location to switch your active checklist</div>
     <div id="loc-list">Loading...</div>
-    <div class="add-loc-btn" onclick="showAddLocation()">
-      <div class="add-loc-icon">+</div>
-      <span>Add new location</span>
-    </div>
+    <div class="add-loc-btn" onclick="showAddLocation()"><div class="add-loc-icon">+</div><span>Add new location</span></div>
   </div>
 </div>
-
+<!-- History overlay -->
+<div class="loc-overlay" id="history-overlay" onclick="hideHistory()">
+  <div class="loc-sheet" onclick="event.stopPropagation()">
+    <div class="loc-sheet-title"><span>📜 Nudge history</span><span onclick="hideHistory()" style="cursor:pointer;color:#999;font-size:24px">&times;</span></div>
+    <div class="loc-sheet-sub">All reminders fired across your locations</div>
+    <div id="history-list">Loading...</div>
+  </div>
+</div>
 <!-- Add location modal -->
 <div class="add-loc-overlay" id="add-loc-overlay">
   <div class="add-loc-modal" onclick="event.stopPropagation()">
     <div class="add-loc-modal-title">Add new location</div>
-    <div class="add-loc-modal-sub">Your GPS coordinates will be saved as the geofence center</div>
-
-    <div class="gps-captured" id="gps-captured">
-      <div class="gps-captured-icon">📍</div>
-      <div>
-        <div class="gps-captured-text" id="gps-status-text">Capturing GPS...</div>
-        <div class="gps-captured-coords" id="gps-status-coords"></div>
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-gps-btn" onclick="switchTab('gps')">📍 Current GPS</button>
+      <button class="tab-btn inactive" id="tab-search-btn" onclick="switchTab('search')">🔍 Search place</button>
+    </div>
+    <div id="tab-gps-content">
+      <div class="gps-captured" id="gps-captured">
+        <div class="gps-captured-icon">📍</div>
+        <div>
+          <div class="gps-captured-text" id="gps-status-text">Capturing GPS...</div>
+          <div class="gps-captured-coords" id="gps-status-coords"></div>
+        </div>
       </div>
     </div>
-
+    <div id="tab-search-content" style="display:none">
+      <div class="search-input-row">
+        <input class="search-input" id="place-search-input" placeholder="e.g. DMart Velachery Chennai" />
+        <button class="search-btn" onclick="searchPlace()">Search</button>
+      </div>
+      <div id="place-results" style="max-height:160px;overflow-y:auto;border-radius:8px;border:0.5px solid #f0f0f0;margin-bottom:12px"></div>
+    </div>
     <div class="field-label">Name this place</div>
     <div class="name-row">
-      <input class="name-input" id="new-loc-name" placeholder="e.g. My Office, Apollo Hospital" />
+      <input class="name-input" id="new-loc-name" placeholder="e.g. DMart Velachery, Apollo Hospital" />
       <button class="voice-btn" id="loc-voice-btn" onclick="toggleLocVoice()">🎤</button>
     </div>
-
     <div class="radius-label">Geofence type</div>
     <div class="radius-options">
-      <div class="radius-opt" id="r-home" onclick="selectRadius('home', 50)">
-        <span class="radius-opt-icon">🏠</span>
-        <div class="radius-opt-name">Home</div>
-        <div class="radius-opt-dist">50m</div>
-      </div>
-      <div class="radius-opt active" id="r-office" onclick="selectRadius('office', 100)">
-        <span class="radius-opt-icon">💼</span>
-        <div class="radius-opt-name">Office</div>
-        <div class="radius-opt-dist">100m</div>
-      </div>
-      <div class="radius-opt" id="r-store" onclick="selectRadius('store', 150)">
-        <span class="radius-opt-icon">🛒</span>
-        <div class="radius-opt-name">Store</div>
-        <div class="radius-opt-dist">150m</div>
-      </div>
-      <div class="radius-opt" id="r-hospital" onclick="selectRadius('hospital', 100)">
-        <span class="radius-opt-icon">🏥</span>
-        <div class="radius-opt-name">Hospital</div>
-        <div class="radius-opt-dist">100m</div>
-      </div>
+      <div class="radius-opt" id="r-home" onclick="selectRadius('home',50)"><span class="radius-opt-icon">🏠</span><div class="radius-opt-name">Home</div><div class="radius-opt-dist">50m</div></div>
+      <div class="radius-opt active" id="r-office" onclick="selectRadius('office',100)"><span class="radius-opt-icon">💼</span><div class="radius-opt-name">Office</div><div class="radius-opt-dist">100m</div></div>
+      <div class="radius-opt" id="r-store" onclick="selectRadius('store',150)"><span class="radius-opt-icon">🛒</span><div class="radius-opt-name">Store</div><div class="radius-opt-dist">150m</div></div>
+      <div class="radius-opt" id="r-hospital" onclick="selectRadius('hospital',100)"><span class="radius-opt-icon">🏥</span><div class="radius-opt-name">Hospital</div><div class="radius-opt-dist">100m</div></div>
     </div>
-
     <div class="modal-btns">
       <button class="cancel-btn" onclick="hideAddLocation()">Cancel</button>
       <button class="save-btn-modal" id="save-loc-btn" onclick="saveNewLocation()">Save location</button>
     </div>
   </div>
 </div>
-
 <div class="input-bar">
   <button class="mic-btn" id="mic-btn" onclick="toggleVoice()">🎤</button>
-  <input class="task-input" id="task-input" placeholder="Add a reminder or tap 🎤..." />
+  <input class="task-input" id="task-input" placeholder="Type or speak a reminder..." />
   <button class="send-btn" onclick="addTask()">➤</button>
 </div>
-
 <script>
 var API = 'https://uw4aoqlpr4.execute-api.us-east-1.amazonaws.com';
-// var API = 'http://localhost:8002'; // local
-var USER_ID = '';
-var LOCATION_ID = '';
-var LOCATION_LAT = 12.9818475;
-var LOCATION_LNG = 80.2095872;
-var LOCATION_NAME = '';
-var LOCATION_RADIUS = 50;
-var LOCATIONS = [];
-var watchId = null;
-var dwellTimer = null;
-var insideZone = false;
-var simInterval = null;
-var simStep = 0;
-var notifyEnabled = false;
-var deferredPrompt = null;
-var recognition = null;
-var isListening = false;
-var locRecognition = null;
-var isLocListening = false;
-var newLocLat = null;
-var newLocLng = null;
-var newLocRadius = 100;
+// var API = 'http://localhost:8002';
+var USER_ID='',LOCATION_ID='',LOCATION_LAT=12.9818475,LOCATION_LNG=80.2095872,LOCATION_NAME='',LOCATION_RADIUS=50;
+var LOCATIONS=[],watchId=null,dwellTimer=null,insideZone=false,simInterval=null,simStep=0;
+var notifyEnabled=false,deferredPrompt=null,recognition=null,isListening=false;
+var locRecognition=null,isLocListening=false,newLocLat=null,newLocLng=null,newLocRadius=100,currentTab='gps';
 
-var LOC_EMOJIS = {'home':'🏠','dmart':'🛒','hospital':'🏥','apollo':'🏥','office':'💼','school':'🏫','gym':'💪','airport':'✈️','default':'📍'};
-var LOC_COLORS = {'home':'#E8F5E9','dmart':'#FFF3E0','hospital':'#E3F2FD','apollo':'#E3F2FD','office':'#F3E5F5','default':'#F5F5F5'};
+var LOC_EMOJIS={'home':'🏠','dmart':'🛒','hospital':'🏥','apollo':'🏥','office':'💼','school':'🏫','gym':'💪','airport':'✈️','default':'📍'};
+var LOC_COLORS={'home':'#E8F5E9','dmart':'#FFF3E0','hospital':'#E3F2FD','apollo':'#E3F2FD','office':'#F3E5F5','default':'#F5F5F5'};
+function getLocEmoji(n){n=n.toLowerCase();for(var k in LOC_EMOJIS){if(n.includes(k))return LOC_EMOJIS[k];}return LOC_EMOJIS['default'];}
+function getLocColor(n){n=n.toLowerCase();for(var k in LOC_COLORS){if(n.includes(k))return LOC_COLORS[k];}return LOC_COLORS['default'];}
+function getLocType(n){n=n.toLowerCase();if(n.includes('home'))return 'home';if(n.includes('dmart')||n.includes('store')||n.includes('mall')||n.includes('shop'))return 'store';if(n.includes('hospital')||n.includes('clinic')||n.includes('apollo'))return 'hospital';if(n.includes('office')||n.includes('work'))return 'office';return 'default';}
 
-function getLocEmoji(name) {
-  var n = name.toLowerCase();
-  for (var k in LOC_EMOJIS) { if (n.includes(k)) return LOC_EMOJIS[k]; }
-  return LOC_EMOJIS['default'];
+var ZONE_HOME=['🛏 Inside','🚶 Door','🚪 Exit','🌤 Outside','🏙 Away'];
+var ZONE_OTHER=['🏠 Start','🚗 Travel','📍 Near','✅ Inside','🚪 Exit'];
+var GPS_STEPS_HOME=[{left:'5%',label:'🏠 Inside home',event:null,delay:4000},{left:'22%',label:'🚶 Moving to door',event:null,delay:4000},{left:'42%',label:'🚪 At front door',event:null,delay:4000},{left:'58%',label:'🚨 Leaving home!',event:'exit',delay:7000},{left:'75%',label:'🌤 Outside',event:null,delay:4000},{left:'92%',label:'🏙 On the way',event:null,delay:4000}];
+var GPS_STEPS_OTHER=[{left:'5%',label:'🏠 Starting journey',event:null,delay:4000},{left:'22%',label:'🚗 Traveling...',event:null,delay:4000},{left:'40%',label:'📍 Getting closer',event:null,delay:4000},{left:'56%',label:'✅ Arrived!',event:'arrival',delay:7000},{left:'60%',label:'🛒 Inside...',event:null,delay:7000},{left:'58%',label:'⏱ Still here (10min)',event:'dwell',delay:7000},{left:'68%',label:'🚶 Heading to exit',event:null,delay:4000},{left:'78%',label:'🚨 Leaving!',event:'exit',delay:7000},{left:'92%',label:'🏠 Heading back',event:null,delay:4000}];
+
+setInterval(function(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});},1000);
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
+function installPWA(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(function(){document.getElementById('install-banner').classList.remove('show');deferredPrompt=null;});}else{addSystem('On iPhone: tap Share then Add to Home Screen');}}
+
+async function init(){
+  try{var res=await fetch(API+'/setup/ids');var data=await res.json();USER_ID=data.user_id;await loadLocations();if(LOCATIONS.length>0)selectLocation(LOCATIONS[0]);showStats();}
+  catch(e){addSystem('Connecting...');}
 }
-function getLocColor(name) {
-  var n = name.toLowerCase();
-  for (var k in LOC_COLORS) { if (n.includes(k)) return LOC_COLORS[k]; }
-  return LOC_COLORS['default'];
-}
-function getLocType(name) {
-  var n = name.toLowerCase();
-  if (n.includes('home')) return 'home';
-  if (n.includes('dmart')||n.includes('store')||n.includes('mall')||n.includes('shop')) return 'store';
-  if (n.includes('hospital')||n.includes('clinic')||n.includes('apollo')) return 'hospital';
-  if (n.includes('office')||n.includes('work')) return 'office';
-  return 'default';
-}
-
-var ZONE_HOME = ['🛏 Inside','🚶 Door','🚪 Exit','🌤 Outside','🏙 Away'];
-var ZONE_OTHER = ['🏠 Start','🚗 Travel','📍 Near','✅ Inside','🚪 Exit'];
-
-var GPS_STEPS_HOME = [
-  {left:'5%',  label:'🏠 Inside home',      event:null,      delay:4000},
-  {left:'22%', label:'🚶 Moving to door',    event:null,      delay:4000},
-  {left:'42%', label:'🚪 At front door',     event:null,      delay:4000},
-  {left:'58%', label:'🚨 Leaving home!',     event:'exit',    delay:7000},
-  {left:'75%', label:'🌤 Outside',           event:null,      delay:4000},
-  {left:'92%', label:'🏙 On the way',        event:null,      delay:4000},
-];
-var GPS_STEPS_OTHER = [
-  {left:'5%',  label:'🏠 Starting journey',  event:null,      delay:4000},
-  {left:'22%', label:'🚗 Traveling...',       event:null,      delay:4000},
-  {left:'40%', label:'📍 Getting closer',     event:null,      delay:4000},
-  {left:'56%', label:'✅ Arrived!',           event:'arrival', delay:7000},
-  {left:'60%', label:'🛒 Inside...',          event:null,      delay:7000},
-  {left:'58%', label:'⏱ Still here (10min)', event:'dwell',   delay:7000},
-  {left:'68%', label:'🚶 Heading to exit',    event:null,      delay:4000},
-  {left:'78%', label:'🚨 Leaving!',          event:'exit',    delay:7000},
-  {left:'92%', label:'🏠 Heading back',      event:null,      delay:4000},
-];
-
-setInterval(function() {
-  document.getElementById('clock').textContent = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-},1000);
-
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault(); deferredPrompt = e;
-  document.getElementById('install-banner').classList.add('show');
-});
-function installPWA() {
-  if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(function(){document.getElementById('install-banner').classList.remove('show');deferredPrompt=null;}); }
-  else { addSystem('On iPhone: tap Share → Add to Home Screen'); }
-}
-
-async function init() {
-  try {
-    var res = await fetch(API+'/setup/ids');
-    var data = await res.json();
-    USER_ID = data.user_id;
-    await loadLocations();
-    if (LOCATIONS.length > 0) selectLocation(LOCATIONS[0]);
-    showStats();
-  } catch(e) { addSystem('Connecting...'); }
-}
-
-async function loadLocations() {
-  var res = await fetch(API+'/location/list/'+USER_ID);
-  var data = await res.json();
-  LOCATIONS = data.locations || [];
-  renderLocationList();
-}
-
-function renderLocationList() {
-  var list = document.getElementById('loc-list');
-  if (!LOCATIONS.length) { list.innerHTML='<div style="text-align:center;color:#999;padding:20px">No locations yet</div>'; return; }
-  list.innerHTML = LOCATIONS.map(function(loc) {
-    var emoji = getLocEmoji(loc.name);
-    var color = getLocColor(loc.name);
-    var isActive = loc.id === LOCATION_ID;
-    var pendingText = loc.pending_tasks > 0 ? loc.pending_tasks+' pending' : '✓ all done';
-    return '<div class="loc-item" onclick="selectLocationById(\''+loc.id+'\')">' +
-      '<div class="loc-icon-circle" style="background:'+color+'">'+emoji+'</div>' +
-      '<div class="loc-info"><div class="loc-name">'+loc.name+'</div><div class="loc-addr">'+(loc.address||'')+'</div></div>' +
-      '<div class="loc-right"><span class="loc-badge" style="background:'+color+';color:#555">'+pendingText+'</span>'+(isActive?'<span class="loc-active-mark">✓</span>':'')+'</div>' +
+async function loadLocations(){var res=await fetch(API+'/location/list/'+USER_ID);var data=await res.json();LOCATIONS=data.locations||[];renderLocationList();}
+function renderLocationList(){
+  var list=document.getElementById('loc-list');
+  if(!LOCATIONS.length){list.innerHTML='<div style="text-align:center;color:#999;padding:20px">No locations yet</div>';return;}
+  list.innerHTML=LOCATIONS.map(function(loc){
+    var emoji=getLocEmoji(loc.name),color=getLocColor(loc.name),isActive=loc.id===LOCATION_ID;
+    var pt=loc.pending_tasks>0?loc.pending_tasks+' pending':'✓ all done';
+    return '<div class="loc-item" onclick="selectLocationById(\''+loc.id+'\')">'+
+      '<div class="loc-icon-circle" style="background:'+color+'">'+emoji+'</div>'+
+      '<div class="loc-info"><div class="loc-name">'+loc.name+'</div><div class="loc-addr">'+(loc.address||'')+'</div></div>'+
+      '<div class="loc-right"><span class="loc-badge" style="background:'+color+';color:#555">'+pt+'</span>'+(isActive?'<span class="loc-active-mark">✓</span>':'')+'</div>'+
     '</div>';
   }).join('');
 }
-
-function selectLocationById(id) {
-  var loc = LOCATIONS.find(function(l){return l.id===id;});
-  if (loc) selectLocation(loc);
-}
-
-function selectLocation(loc) {
-  LOCATION_ID = loc.id;
-  LOCATION_LAT = loc.lat;
-  LOCATION_LNG = loc.lng;
-  LOCATION_NAME = loc.name;
-  LOCATION_RADIUS = loc.radius_meters || 100;
-  var emoji = getLocEmoji(loc.name);
-  var color = getLocColor(loc.name);
-  document.getElementById('loc-avatar').textContent = emoji;
-  document.getElementById('loc-avatar').style.background = color;
-  document.getElementById('loc-btn-text').textContent = loc.name;
-  document.getElementById('gps-label').textContent = 'GPS ready — '+loc.name;
+function selectLocationById(id){var loc=LOCATIONS.find(function(l){return l.id===id;});if(loc)selectLocation(loc);}
+function selectLocation(loc){
+  LOCATION_ID=loc.id;LOCATION_LAT=loc.lat;LOCATION_LNG=loc.lng;LOCATION_NAME=loc.name;LOCATION_RADIUS=loc.radius_meters||100;
+  var emoji=getLocEmoji(loc.name),color=getLocColor(loc.name);
+  document.getElementById('loc-avatar').textContent=emoji;
+  document.getElementById('loc-avatar').style.background=color;
+  document.getElementById('loc-btn-text').textContent=loc.name;
+  document.getElementById('gps-label').textContent='GPS ready — '+loc.name;
   hideLocationSelector();
-  document.getElementById('chat').innerHTML =
-    '<div class="date-div"><span>Today</span></div>' +
-    '<div class="bs">'+emoji+' '+loc.name+' selected</div>';
-  loadTaskBubble();
-  addGPSBubble();
+  document.getElementById('chat').innerHTML='<div class="date-div"><span>Today</span></div><div class="bs">'+emoji+' '+loc.name+' selected</div>';
+  loadTaskBubble();addGPSBubble();
 }
+function showLocationSelector(){renderLocationList();document.getElementById('loc-overlay').classList.add('show');}
+function hideLocationSelector(){document.getElementById('loc-overlay').classList.remove('show');}
 
-function showLocationSelector() { renderLocationList(); document.getElementById('loc-overlay').classList.add('show'); }
-function hideLocationSelector() { document.getElementById('loc-overlay').classList.remove('show'); }
-
-// ── Add location ──────────────────────────────────────────
-function showAddLocation() {
-  hideLocationSelector();
-  newLocLat = null; newLocLng = null;
-  document.getElementById('new-loc-name').value = '';
-  document.getElementById('gps-status-text').textContent = 'Capturing GPS...';
-  document.getElementById('gps-status-coords').textContent = '';
-  document.getElementById('save-loc-btn').disabled = true;
+function switchTab(tab){
+  currentTab=tab;var isGps=tab==='gps';
+  document.getElementById('tab-gps-content').style.display=isGps?'block':'none';
+  document.getElementById('tab-search-content').style.display=isGps?'none':'block';
+  document.getElementById('tab-gps-btn').className='tab-btn '+(isGps?'active':'inactive');
+  document.getElementById('tab-search-btn').className='tab-btn '+(isGps?'inactive':'active');
+}
+async function searchPlace(){
+  var query=document.getElementById('place-search-input').value.trim();if(!query)return;
+  var rd=document.getElementById('place-results');rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">Searching...</div>';
+  try{
+    var res=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(query)+'&format=json&limit=5&countrycodes=in',{headers:{'Accept-Language':'en','User-Agent':'ContextMemoryApp'}});
+    var data=await res.json();
+    if(!data.length){rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">No results. Try a more specific name.</div>';return;}
+    rd.innerHTML=data.map(function(p){
+      var sn=p.display_name.split(',').slice(0,2).join(', ');
+      var safe=sn.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      return '<div class="place-result-item" onclick="selectPlace('+p.lat+','+p.lon+',\''+safe+'\')">'+
+        '<div style="font-size:12px;font-weight:500;color:#1a1a1a">'+sn+'</div>'+
+        '<div style="font-size:10px;color:#999;margin-top:2px">'+parseFloat(p.lat).toFixed(4)+'°N '+parseFloat(p.lon).toFixed(4)+'°E</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){rd.innerHTML='<div style="color:#f44336;font-size:12px;padding:10px">Search failed. Check connection.</div>';}
+}
+function selectPlace(lat,lng,name){
+  newLocLat=parseFloat(lat);newLocLng=parseFloat(lng);
+  document.getElementById('place-results').innerHTML='<div style="background:#E8F5E9;border-radius:8px;padding:10px;font-size:12px;color:#2e7d32;margin-bottom:4px">✓ '+name+'<br><span style="font-size:10px">'+parseFloat(lat).toFixed(4)+'°N '+parseFloat(lng).toFixed(4)+'°E</span></div>';
+  document.getElementById('save-loc-btn').disabled=false;
+  if(!document.getElementById('new-loc-name').value)document.getElementById('new-loc-name').value=name.split(',')[0].trim();
+  switchTab('gps');
+  document.getElementById('gps-status-text').textContent='✓ Location found via search';
+  document.getElementById('gps-status-coords').textContent=parseFloat(lat).toFixed(4)+'°N '+parseFloat(lng).toFixed(4)+'°E';
+}
+function showAddLocation(){
+  hideLocationSelector();newLocLat=null;newLocLng=null;switchTab('gps');
+  document.getElementById('new-loc-name').value='';document.getElementById('place-search-input').value='';
+  document.getElementById('place-results').innerHTML='';
+  document.getElementById('gps-status-text').textContent='Capturing GPS...';
+  document.getElementById('gps-status-coords').textContent='';
+  document.getElementById('save-loc-btn').disabled=true;
   document.getElementById('add-loc-overlay').classList.add('show');
-  selectRadius('office', 100);
-
-  if (!navigator.geolocation) {
-    document.getElementById('gps-status-text').textContent = 'GPS not supported';
-    return;
-  }
+  selectRadius('office',100);
+  if(!navigator.geolocation){document.getElementById('gps-status-text').textContent='GPS not supported';return;}
   navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      newLocLat = pos.coords.latitude;
-      newLocLng = pos.coords.longitude;
-      document.getElementById('gps-status-text').textContent = '✓ GPS captured';
-      document.getElementById('gps-status-coords').textContent = newLocLat.toFixed(4)+'°N '+newLocLng.toFixed(4)+'°E';
-      document.getElementById('save-loc-btn').disabled = false;
-    },
-    function(err) {
-      document.getElementById('gps-status-text').textContent = 'GPS error — enter manually';
-      document.getElementById('gps-status-coords').textContent = err.message;
-      document.getElementById('save-loc-btn').disabled = false;
-    },
-    {enableHighAccuracy:true, timeout:15000}
+    function(pos){newLocLat=pos.coords.latitude;newLocLng=pos.coords.longitude;document.getElementById('gps-status-text').textContent='✓ GPS captured';document.getElementById('gps-status-coords').textContent=newLocLat.toFixed(4)+'°N '+newLocLng.toFixed(4)+'°E';document.getElementById('save-loc-btn').disabled=false;},
+    function(err){document.getElementById('gps-status-text').textContent='GPS unavailable — use Search tab';document.getElementById('gps-status-coords').textContent='Tap Search place to find location by name';document.getElementById('save-loc-btn').disabled=false;},
+    {enableHighAccuracy:true,timeout:15000}
   );
 }
-
-function hideAddLocation() {
-  document.getElementById('add-loc-overlay').classList.remove('show');
+function hideAddLocation(){document.getElementById('add-loc-overlay').classList.remove('show');}
+function selectRadius(type,radius){newLocRadius=radius;['home','office','store','hospital'].forEach(function(t){document.getElementById('r-'+t).classList.remove('active');});document.getElementById('r-'+type).classList.add('active');}
+async function saveNewLocation(){
+  var name=document.getElementById('new-loc-name').value.trim();
+  if(!name){document.getElementById('new-loc-name').focus();return;}
+  if(!newLocLat&&!newLocLng){alert('Please capture GPS or search for a place first.');return;}
+  var btn=document.getElementById('save-loc-btn');btn.textContent='Saving...';btn.disabled=true;
+  var res=await fetch(API+'/location/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,name:name,lat:newLocLat||LOCATION_LAT,lng:newLocLng||LOCATION_LNG,radius_meters:newLocRadius,address:''})});
+  var data=await res.json();btn.textContent='Save location';btn.disabled=false;hideAddLocation();
+  await loadLocations();var newLoc=LOCATIONS.find(function(l){return l.id===data.location.id;});
+  if(newLoc)selectLocation(newLoc);addSystem('📍 '+name+' added — tap 🎤 to add reminders!');
 }
-
-function selectRadius(type, radius) {
-  newLocRadius = radius;
-  ['home','office','store','hospital'].forEach(function(t) {
-    document.getElementById('r-'+t).classList.remove('active');
-  });
-  document.getElementById('r-'+type).classList.add('active');
-}
-
-async function saveNewLocation() {
-  var name = document.getElementById('new-loc-name').value.trim();
-  if (!name) { document.getElementById('new-loc-name').focus(); return; }
-  if (!newLocLat && !newLocLng) {
-    alert('GPS not captured yet. Please wait or try again.');
-    return;
-  }
-
-  var btn = document.getElementById('save-loc-btn');
-  btn.textContent = 'Saving...';
-  btn.disabled = true;
-
-  var res = await fetch(API+'/location/add', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      user_id: USER_ID,
-      name: name,
-      lat: newLocLat || LOCATION_LAT,
-      lng: newLocLng || LOCATION_LNG,
-      radius_meters: newLocRadius,
-      address: ''
-    })
-  });
-  var data = await res.json();
-
-  btn.textContent = 'Save location';
-  btn.disabled = false;
-  hideAddLocation();
-
-  await loadLocations();
-  var newLoc = LOCATIONS.find(function(l){return l.id === data.location.id;});
-  if (newLoc) selectLocation(newLoc);
-
-  addSystem('📍 '+name+' added — tap 🎤 to add reminders!');
-}
-
-function toggleLocVoice() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-  if (isLocListening) { locRecognition.stop(); return; }
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  locRecognition = new SR();
-  locRecognition.continuous = false; locRecognition.interimResults = true; locRecognition.lang = 'en-US';
-  locRecognition.onstart = function() { isLocListening=true; document.getElementById('loc-voice-btn').classList.add('listening'); };
-  locRecognition.onresult = function(e) {
-    var t = Array.from(e.results).map(function(r){return r[0].transcript;}).join('');
-    document.getElementById('new-loc-name').value = t;
-  };
-  locRecognition.onend = function() { isLocListening=false; document.getElementById('loc-voice-btn').classList.remove('listening'); };
-  locRecognition.onerror = function() { isLocListening=false; document.getElementById('loc-voice-btn').classList.remove('listening'); };
+function toggleLocVoice(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window))return;
+  if(isLocListening){locRecognition.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;locRecognition=new SR();locRecognition.continuous=false;locRecognition.interimResults=true;locRecognition.lang='en-US';
+  locRecognition.onstart=function(){isLocListening=true;document.getElementById('loc-voice-btn').classList.add('listening');};
+  locRecognition.onresult=function(e){var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');document.getElementById('new-loc-name').value=t;};
+  locRecognition.onend=function(){isLocListening=false;document.getElementById('loc-voice-btn').classList.remove('listening');};
+  locRecognition.onerror=function(){isLocListening=false;document.getElementById('loc-voice-btn').classList.remove('listening');};
   locRecognition.start();
 }
 
-// ── Chat helpers ──────────────────────────────────────────
-function addSystem(text) {
-  var chat = document.getElementById('chat');
-  var d = document.createElement('div');
-  d.className = 'bs'; d.innerHTML = text;
-  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+function addSystem(text){var c=document.getElementById('chat');var d=document.createElement('div');d.className='bs';d.innerHTML=text;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function addBubble(text,side){var c=document.getElementById('chat');var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var d=document.createElement('div');d.className='bubble b'+side;d.innerHTML=text+'<div class="btime">'+t+(side==='l'?' ✓✓':'')+'</div>';c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function addNudge(message,type){
+  var c=document.getElementById('chat');var emojis={arrival:'📍',dwell:'⏰',exit:'🚨'};var labels={arrival:'Arrived',dwell:'Still inside',exit:'Leaving'};
+  var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var d=document.createElement('div');d.className='nudge-bubble';
+  d.innerHTML='<div class="nudge-header"><span class="nudge-icon">'+(emojis[type]||'🔔')+'</span><span class="nudge-label">Context Memory • '+LOCATION_NAME+'</span></div><div class="nudge-text">'+message+'</div><div class="nudge-meta"><span>'+(labels[type]||type)+'</span><span>'+t+' ✓✓</span></div>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
-function addBubble(text, side) {
-  var chat = document.getElementById('chat');
-  var t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  var d = document.createElement('div');
-  d.className = 'bubble b'+side;
-  d.innerHTML = text+'<div class="btime">'+t+(side==='l'?' ✓✓':'')+'</div>';
-  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+function addGPSBubble(){
+  var c=document.getElementById('chat');var ex=document.getElementById('gps-bubble');if(ex)ex.remove();
+  var isHome=getLocType(LOCATION_NAME)==='home';var zones=isHome?ZONE_HOME:ZONE_OTHER;
+  var d=document.createElement('div');d.className='gps-bubble';d.id='gps-bubble';
+  var zh=zones.map(function(z){return '<div class="gps-zone">'+z+'</div>';}).join('');
+  d.innerHTML='<div class="gps-title"><span>📍 '+LOCATION_NAME+'</span><span id="gps-coords">--</span></div><div class="gps-track"><div class="gps-zones">'+zh+'</div><div class="gps-marker" id="gps-marker" style="left:5%">👤</div></div><div class="gps-step" id="gps-step">Ready — tap Real GPS or Simulate</div>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
-function addNudge(message, type) {
-  var chat = document.getElementById('chat');
-  var emojis = {arrival:'📍',dwell:'⏰',exit:'🚨'};
-  var labels = {arrival:'Arrived',dwell:'Still inside',exit:'Leaving'};
-  var t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  var d = document.createElement('div');
-  d.className = 'nudge-bubble';
-  d.innerHTML =
-    '<div class="nudge-header"><span class="nudge-icon">'+(emojis[type]||'🔔')+'</span><span class="nudge-label">Context Memory • '+LOCATION_NAME+'</span></div>' +
-    '<div class="nudge-text">'+message+'</div>' +
-    '<div class="nudge-meta"><span>'+(labels[type]||type)+'</span><span>'+t+' ✓✓</span></div>';
-  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
-}
-
-function addGPSBubble() {
-  var chat = document.getElementById('chat');
-  var existing = document.getElementById('gps-bubble');
-  if (existing) existing.remove();
-  var isHome = getLocType(LOCATION_NAME) === 'home';
-  var zones = isHome ? ZONE_HOME : ZONE_OTHER;
-  var d = document.createElement('div');
-  d.className = 'gps-bubble'; d.id = 'gps-bubble';
-  var zonesHTML = zones.map(function(z){return '<div class="gps-zone">'+z+'</div>';}).join('');
-  d.innerHTML =
-    '<div class="gps-title"><span>📍 '+LOCATION_NAME+'</span><span id="gps-coords">--</span></div>' +
-    '<div class="gps-track"><div class="gps-zones">'+zonesHTML+'</div><div class="gps-marker" id="gps-marker" style="left:5%">👤</div></div>' +
-    '<div class="gps-step" id="gps-step">Ready — tap Real GPS or Simulate</div>';
-  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
-}
-
-async function loadTaskBubble() {
-  if (!USER_ID||!LOCATION_ID) return;
-  var res = await fetch(API+'/tasks/'+USER_ID+'/'+LOCATION_ID);
-  var data = await res.json();
-  var chat = document.getElementById('chat');
-  var existing = document.getElementById('task-bubble');
-  if (existing) existing.remove();
-  if (!data.tasks||!data.tasks.length) return;
-  var emoji = getLocEmoji(LOCATION_NAME);
-  var d = document.createElement('div');
-  d.className = 'task-bubble'; d.id = 'task-bubble';
-  var rows = data.tasks.map(function(t) {
-    return '<div class="task-row '+(t.status==='completed'?'done':'')+'" id="tr-'+t.id+'">' +
-      '<span>'+t.title+'</span>' +
+async function loadTaskBubble(){
+  if(!USER_ID||!LOCATION_ID)return;
+  var res=await fetch(API+'/tasks/'+USER_ID+'/'+LOCATION_ID);var data=await res.json();
+  var c=document.getElementById('chat');var ex=document.getElementById('task-bubble');if(ex)ex.remove();
+  if(!data.tasks||!data.tasks.length)return;
+  var emoji=getLocEmoji(LOCATION_NAME);var d=document.createElement('div');d.className='task-bubble';d.id='task-bubble';
+  var rows=data.tasks.map(function(t){
+    var escapedTitle=t.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="task-row '+(t.status==='completed'?'done':'')+'" id="tr-'+t.id+'">'+
+      '<span class="task-title">'+t.title+'</span>'+
       (t.status==='pending'
-        ? '<button class="check-btn" onclick="completeTask(\''+t.id+'\', this)">Got it ✓</button>'
-        : '<span class="done-mark">✓</span>') +
+        ? '<div class="task-btns"><button class="edit-btn" onclick="editTask(\''+t.id+'\',\''+escapedTitle+'\')">✏️</button><button class="edit-btn" style="color:#f44336" onclick="deleteTask(\''+t.id+'\')">🗑</button><button class="check-btn" onclick="completeTask(\''+t.id+'\', this)">Got it ✓</button></div>'
+        : '<span class="done-mark">✓</span>')+
     '</div>';
   }).join('');
-  d.innerHTML =
-    '<div class="task-header">'+emoji+' '+LOCATION_NAME+' — checklist</div>' +
-    rows +
-    '<div class="task-footer">Stored in CockroachDB • '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</div>';
-  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+  d.innerHTML='<div class="task-header">'+emoji+' '+LOCATION_NAME+' — checklist</div>'+rows+'<div class="task-footer">Stored in CockroachDB • '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</div>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
 
-async function triggerEvent(type, lat, lng) {
-  if (!USER_ID||!LOCATION_ID) return;
-  await fetch(API+'/location/event', {method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,event_type:type,lat:lat||LOCATION_LAT,lng:lng||LOCATION_LNG,dwell_minutes:type==='dwell'?10:0})});
-  var res = await fetch(API+'/nudge/generate', {method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,trigger_type:type})});
-  var data = await res.json();
-  if (data.nudge) { addNudge(data.nudge, type); sendPush(type, data.nudge); }
-  else { addSystem('✅ All tasks completed!'); }
-  loadTaskBubble(); loadLocations();
+var editStore={};
+function editTask(taskId,currentTitle){
+  var row=document.getElementById('tr-'+taskId);if(!row)return;
+  editStore[taskId]=row.innerHTML;
+  row.innerHTML='<div class="edit-row"><input class="edit-input-field" id="ei-'+taskId+'"><button class="edit-save-btn" onclick="saveEdit(\''+taskId+'\')">Save</button><button class="edit-cancel-btn" onclick="cancelEdit(\''+taskId+'\')">✕</button></div>';
+  var inp=document.getElementById('ei-'+taskId);if(inp){inp.value=currentTitle;inp.focus();inp.select();}
+}
+async function saveEdit(taskId){
+  var inp=document.getElementById('ei-'+taskId);
+  var newTitle=inp?inp.value.trim():'';if(!newTitle)return;
+  var res=await fetch(API+'/tasks/update',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({task_id:taskId,user_id:USER_ID,title:newTitle})});
+  var data=await res.json();
+  if(data.status==='updated'){addSystem('✏️ "'+newTitle+'" updated');}
+  loadTaskBubble();loadLocations();
+}
+function cancelEdit(taskId){var row=document.getElementById('tr-'+taskId);if(row&&editStore[taskId])row.innerHTML=editStore[taskId];}
+async function deleteTask(taskId){
+  if(!confirm('Delete this task?'))return;
+  await fetch(API+'/tasks/delete',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({task_id:taskId,user_id:USER_ID})});
+  addSystem('🗑 Task deleted');loadTaskBubble();loadLocations();
 }
 
-function startRealGPS() {
-  if (!LOCATION_ID) { addSystem('Please select a location first'); return; }
-  if (!navigator.geolocation) { addSystem('GPS not supported in this browser'); return; }
-  if (watchId) navigator.geolocation.clearWatch(watchId);
-  insideZone = false;
+async function triggerEvent(type,lat,lng){
+  if(!USER_ID||!LOCATION_ID)return;
+  await fetch(API+'/location/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,event_type:type,lat:lat||LOCATION_LAT,lng:lng||LOCATION_LNG,dwell_minutes:type==='dwell'?10:0})});
+  var res=await fetch(API+'/nudge/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,trigger_type:type})});
+  var data=await res.json();
+  if(data.nudge){addNudge(data.nudge,type);sendPush(type,data.nudge);}else{addSystem('✅ All tasks completed!');}
+  loadTaskBubble();loadLocations();
+}
+function startRealGPS(){
+  if(!LOCATION_ID){addSystem('Please select a location first');return;}
+  if(!navigator.geolocation){addSystem('GPS not supported');return;}
+  if(watchId)navigator.geolocation.clearWatch(watchId);insideZone=false;
   addSystem('📍 Real GPS activated — '+LOCATION_NAME);
-  document.getElementById('gps-dot').style.background = '#f44336';
-  document.getElementById('gps-dot').style.animation = 'none';
-  watchId = navigator.geolocation.watchPosition(
-    function(pos) {
-      var lat = pos.coords.latitude; var lng = pos.coords.longitude;
-      document.getElementById('gps-coords').textContent = lat.toFixed(4)+'N '+lng.toFixed(4)+'E';
-      var dist = getDistance(lat, lng, LOCATION_LAT, LOCATION_LNG);
-      if (!isNaN(dist)) {
-        document.getElementById('gps-step').textContent = Math.round(dist)+'m from '+LOCATION_NAME;
-        var marker = document.getElementById('gps-marker');
-        if (marker) { var pct = dist < LOCATION_RADIUS ? 60 : Math.max(5, 50-(dist/200)*10); marker.style.left = pct+'%'; }
-      }
-      var isHome = getLocType(LOCATION_NAME)==='home';
-      if (isHome) {
-        if (dist < LOCATION_RADIUS && !insideZone) { insideZone=true; addSystem('🏠 You are home'); triggerEvent('arrival',lat,lng); }
-        else if (dist > LOCATION_RADIUS*1.5 && insideZone) { insideZone=false; addSystem('🚨 Leaving home!'); triggerEvent('exit',lat,lng); }
-      } else {
-        if (dist < LOCATION_RADIUS && !insideZone) {
-          insideZone=true; addSystem('📍 Arrived at '+LOCATION_NAME); triggerEvent('arrival',lat,lng);
-          dwellTimer = setTimeout(function(){if(insideZone)triggerEvent('dwell',lat,lng);}, 10*60*1000);
-        } else if (dist > LOCATION_RADIUS*1.5 && insideZone) {
-          insideZone=false; clearTimeout(dwellTimer); addSystem('👋 Left '+LOCATION_NAME); triggerEvent('exit',lat,lng);
-        }
-      }
+  document.getElementById('gps-dot').style.background='#f44336';document.getElementById('gps-dot').style.animation='none';
+  watchId=navigator.geolocation.watchPosition(
+    function(pos){
+      var lat=pos.coords.latitude,lng=pos.coords.longitude;
+      document.getElementById('gps-coords').textContent=lat.toFixed(4)+'N '+lng.toFixed(4)+'E';
+      var dist=getDistance(lat,lng,LOCATION_LAT,LOCATION_LNG);
+      if(!isNaN(dist)){document.getElementById('gps-step').textContent=Math.round(dist)+'m from '+LOCATION_NAME;var m=document.getElementById('gps-marker');if(m){var p=dist<LOCATION_RADIUS?60:Math.max(5,50-(dist/200)*10);m.style.left=p+'%';}}
+      var isHome=getLocType(LOCATION_NAME)==='home';
+      if(isHome){if(dist<LOCATION_RADIUS&&!insideZone){insideZone=true;addSystem('🏠 You are home');triggerEvent('arrival',lat,lng);}else if(dist>LOCATION_RADIUS*1.5&&insideZone){insideZone=false;addSystem('🚨 Leaving home!');triggerEvent('exit',lat,lng);}}
+      else{if(dist<LOCATION_RADIUS&&!insideZone){insideZone=true;addSystem('📍 Arrived at '+LOCATION_NAME);triggerEvent('arrival',lat,lng);dwellTimer=setTimeout(function(){if(insideZone)triggerEvent('dwell',lat,lng);},10*60*1000);}else if(dist>LOCATION_RADIUS*1.5&&insideZone){insideZone=false;clearTimeout(dwellTimer);addSystem('👋 Left '+LOCATION_NAME);triggerEvent('exit',lat,lng);}}
     },
-    function(err){addSystem('GPS error: '+err.message);},
-    {enableHighAccuracy:true,maximumAge:3000,timeout:15000}
+    function(err){addSystem('GPS error: '+err.message);},{enableHighAccuracy:true,maximumAge:3000,timeout:15000}
   );
 }
-
-function getDistance(lat1,lng1,lat2,lng2) {
-  var R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
-  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+function getDistance(a,b,c,d){var R=6371000,dL=(c-a)*Math.PI/180,dl=(d-b)*Math.PI/180,x=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dl/2)*Math.sin(dl/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function startSimulation(){
+  if(!LOCATION_ID){addSystem('Please select a location first');return;}
+  if(simInterval){clearTimeout(simInterval);simInterval=null;}simStep=0;insideZone=false;addGPSBubble();
+  var isHome=getLocType(LOCATION_NAME)==='home';addSystem('🗺 Simulating '+(isHome?'exit from ':'journey to ')+LOCATION_NAME+'...');runSimStep();
 }
-
-function startSimulation() {
-  if (!LOCATION_ID) { addSystem('Please select a location first'); return; }
-  if (simInterval) { clearTimeout(simInterval); simInterval=null; }
-  simStep=0; insideZone=false;
-  addGPSBubble();
-  var isHome = getLocType(LOCATION_NAME)==='home';
-  addSystem('🗺 Simulating '+(isHome?'exit from ':'journey to ')+LOCATION_NAME+'...');
-  runSimStep();
+function runSimStep(){
+  var isHome=getLocType(LOCATION_NAME)==='home',steps=isHome?GPS_STEPS_HOME:GPS_STEPS_OTHER;
+  if(simStep>=steps.length){addSystem('🏁 Simulation complete!');return;}
+  var step=steps[simStep],m=document.getElementById('gps-marker'),s=document.getElementById('gps-step');
+  if(m)m.style.left=step.left;if(s)s.textContent=step.label;
+  document.getElementById('loc-btn-text').textContent=step.label;document.getElementById('gps-label').textContent=step.label;
+  if(step.event)triggerEvent(step.event,LOCATION_LAT,LOCATION_LNG);simStep++;simInterval=setTimeout(runSimStep,step.delay);
 }
-
-function runSimStep() {
-  var isHome = getLocType(LOCATION_NAME)==='home';
-  var steps = isHome ? GPS_STEPS_HOME : GPS_STEPS_OTHER;
-  if (simStep>=steps.length) { addSystem('🏁 Simulation complete!'); return; }
-  var step = steps[simStep];
-  var marker = document.getElementById('gps-marker');
-  var stepEl = document.getElementById('gps-step');
-  if (marker) marker.style.left = step.left;
-  if (stepEl) stepEl.textContent = step.label;
-  document.getElementById('loc-btn-text').textContent = step.label;
-  document.getElementById('gps-label').textContent = step.label;
-  if (step.event) triggerEvent(step.event, LOCATION_LAT, LOCATION_LNG);
-  simStep++;
-  simInterval = setTimeout(runSimStep, step.delay);
+async function completeTask(taskId,btn){
+  btn.textContent='...';btn.disabled=true;var row=document.getElementById('tr-'+taskId);if(row)row.style.opacity='0.5';
+  await fetch(API+'/tasks/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task_id:taskId,user_id:USER_ID,method:'manual'})});
+  if(row){row.classList.add('done');var nm=document.createElement('span');nm.className='done-mark';nm.innerHTML='✓';btn.parentNode.replaceChild(nm,btn);}
+  loadLocations();sendPush('done','Item checked — good to go!');
 }
-
-async function completeTask(taskId, btn) {
-  btn.textContent = '...';
-  btn.disabled = true;
-  var row = document.getElementById('tr-'+taskId);
-  if (row) row.style.opacity = '0.5';
-  await fetch(API+'/tasks/complete', {method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({task_id:taskId,user_id:USER_ID,method:'manual'})});
-  if (row) {
-    row.classList.add('done');
-    var newMark = document.createElement('span');
-    newMark.className = 'done-mark'; newMark.innerHTML = '✓';
-    btn.parentNode.replaceChild(newMark, btn);
-  }
-  loadLocations(); sendPush('done','Item checked — good to go!');
+async function addTask(){
+  var input=document.getElementById('task-input'),title=input.value.trim();if(!title)return;
+  if(!LOCATION_ID){addSystem('Please select a location first');return;}
+  addBubble(title,'r');input.value='';await saveTask(title);addSystem('"'+title+'" added to '+LOCATION_NAME);loadTaskBubble();loadLocations();
 }
-
-async function addTask() {
-  var input = document.getElementById('task-input');
-  var title = input.value.trim();
-  if (!title) return;
-  if (!LOCATION_ID) { addSystem('Please select a location first'); return; }
-  addBubble(title,'r'); input.value='';
-  await saveTask(title);
-  addSystem('"'+title+'" added to '+LOCATION_NAME);
-  loadTaskBubble(); loadLocations();
+async function saveTask(title){await fetch(API+'/tasks/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,title:title,description:'',priority:1})});}
+function toggleVoice(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){addSystem('Voice not supported — use Chrome or Safari');return;}
+  if(isListening){recognition.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;recognition=new SR();recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
+  recognition.onstart=function(){isListening=true;document.getElementById('mic-btn').classList.add('listening');document.getElementById('task-input').placeholder='🎤 Listening...';addSystem('🎤 Speak your reminders...');};
+  recognition.onresult=function(e){var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');document.getElementById('task-input').value=t;};
+  recognition.onend=function(){isListening=false;document.getElementById('mic-btn').classList.remove('listening');document.getElementById('task-input').placeholder='Type or speak a reminder...';var text=document.getElementById('task-input').value.trim();if(text)processVoice(text);};
+  recognition.onerror=function(e){isListening=false;document.getElementById('mic-btn').classList.remove('listening');addSystem('Voice error: '+e.error);};recognition.start();
 }
-
-async function saveTask(title) {
-  await fetch(API+'/tasks/add', {method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,title:title,description:'',priority:1})});
+async function processVoice(text){
+  var items=text.toLowerCase().replace(/^(add|remind me to|pick|get|take|buy)\s+/i,'').replace(/\band\b/g,',').replace(/\balso\b/g,',').split(',').map(function(i){return i.trim();}).filter(function(i){return i.length>1;}).map(function(i){return i.charAt(0).toUpperCase()+i.slice(1);});
+  if(!items.length)return;addBubble('🎤 "'+text+'"','r');document.getElementById('task-input').value='';
+  for(var i=0;i<items.length;i++)await saveTask(items[i]);addSystem('✅ Added: '+items.join(', '));loadTaskBubble();loadLocations();
 }
-
-function toggleVoice() {
-  if (!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)) { addSystem('Voice not supported — use Chrome or Safari'); return; }
-  if (isListening) { recognition.stop(); return; }
-  var SR = window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.continuous=false; recognition.interimResults=true; recognition.lang='en-US';
-  recognition.onstart = function(){isListening=true;document.getElementById('mic-btn').classList.add('listening');document.getElementById('task-input').placeholder='🎤 Listening...';addSystem('🎤 Speak your reminders...');};
-  recognition.onresult = function(e){var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');document.getElementById('task-input').value=t;};
-  recognition.onend = function(){
-    isListening=false;document.getElementById('mic-btn').classList.remove('listening');
-    document.getElementById('task-input').placeholder='Add a reminder or tap 🎤...';
-    var text=document.getElementById('task-input').value.trim();
-    if(text)processVoice(text);
-  };
-  recognition.onerror=function(e){isListening=false;document.getElementById('mic-btn').classList.remove('listening');addSystem('Voice error: '+e.error);};
-  recognition.start();
+async function showHistory(){
+  document.getElementById('history-overlay').classList.add('show');
+  var res=await fetch(API+'/search/history/'+USER_ID);var data=await res.json();
+  var list=document.getElementById('history-list');
+  if(!data.history||!data.history.length){list.innerHTML='<div style="text-align:center;color:#999;padding:20px">No nudges yet — simulate a journey!</div>';return;}
+  var icons={arrival:'📍',dwell:'⏰',exit:'🚨'};
+  list.innerHTML=data.history.map(function(h){var d=new Date(h.time);var ts=d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return '<div style="padding:10px 0;border-bottom:0.5px solid #f0f0f0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px">'+(icons[h.trigger]||'🔔')+'</span><span style="font-size:12px;font-weight:500;color:#075E54">'+h.location+'</span><span style="font-size:10px;color:#999;margin-left:auto">'+ts+'</span></div><div style="font-size:13px;color:#333;margin-left:24px">'+h.message+'</div><div style="font-size:10px;color:#999;margin-left:24px;margin-top:2px">'+h.trigger+' · '+h.task+'</div></div>';}).join('');
 }
-
-async function processVoice(text) {
-  var items = text.toLowerCase()
-    .replace(/^(add|remind me to|pick|get|take|buy)\s+/i,'')
-    .replace(/\band\b/g,',').replace(/\balso\b/g,',')
-    .split(',').map(function(i){return i.trim();}).filter(function(i){return i.length>1;})
-    .map(function(i){return i.charAt(0).toUpperCase()+i.slice(1);});
-  if (!items.length) return;
-  addBubble('🎤 "'+text+'"','r');
-  document.getElementById('task-input').value='';
-  for (var i=0;i<items.length;i++) await saveTask(items[i]);
-  addSystem('✅ Added: '+items.join(', '));
-  loadTaskBubble(); loadLocations();
+function hideHistory(){document.getElementById('history-overlay').classList.remove('show');}
+async function showStats(){
+  try{var res=await fetch(API+'/stats/'+USER_ID);var data=await res.json();addSystem('📊 '+data.locations+' locations · '+data.total_tasks+' tasks · '+data.nudges_fired+' nudges fired');}catch(e){}
 }
-
-function requestNotify() {
-  if (!('Notification' in window)) { addSystem('Notifications not supported here'); return; }
-  Notification.requestPermission().then(function(p){
-    if (p==='granted') { notifyEnabled=true; addSystem('🔔 Notifications enabled!'); new Notification('Context Memory',{body:'You will receive reminders at the right moment!'}); }
-    else { addSystem('Notifications blocked — check browser settings'); }
-  });
+function requestNotify(){
+  if(!('Notification' in window)){addSystem('Notifications not supported here');return;}
+  Notification.requestPermission().then(function(p){if(p==='granted'){notifyEnabled=true;addSystem('🔔 Notifications enabled!');new Notification('Context Memory',{body:'You will receive reminders at the right moment!'});}else{addSystem('Notifications blocked — check browser settings');}});
 }
-
-function sendPush(type, message) {
-  if (!notifyEnabled||Notification.permission!=='granted') return;
+function sendPush(type,message){
+  if(!notifyEnabled||Notification.permission!=='granted')return;
   var titles={arrival:'📍 Arrived',dwell:'⏰ Still here?',exit:'🚨 Leaving!',done:'✅ Done'};
   new Notification((titles[type]||'Context Memory')+' — '+LOCATION_NAME,{body:message,tag:'cm',renotify:true});
 }
-
-async function resetDemo() {
-  await fetch(API+'/reset',{method:'POST'});
-  insideZone=false;
-  if (watchId) { navigator.geolocation.clearWatch(watchId); watchId=null; }
-  if (simInterval) { clearTimeout(simInterval); simInterval=null; }
-  document.getElementById('gps-dot').style.background='#25D366';
-  document.getElementById('gps-dot').style.animation='blink 2s infinite';
-  document.getElementById('chat').innerHTML =
-    '<div class="date-div"><span>Today</span></div>' +
-    '<div class="bs">↺ Reset — '+(LOCATION_NAME||'select a location')+' ready</div>';
-  if (LOCATION_NAME) document.getElementById('loc-btn-text').textContent=LOCATION_NAME;
-  loadTaskBubble(); addGPSBubble(); loadLocations();
+async function resetDemo(){
+  await fetch(API+'/reset',{method:'POST'});insideZone=false;
+  if(watchId){navigator.geolocation.clearWatch(watchId);watchId=null;}if(simInterval){clearTimeout(simInterval);simInterval=null;}
+  document.getElementById('gps-dot').style.background='#25D366';document.getElementById('gps-dot').style.animation='blink 2s infinite';
+  document.getElementById('chat').innerHTML='<div class="date-div"><span>Today</span></div><div class="bs">↺ Reset — '+(LOCATION_NAME||'select a location')+' ready</div>';
+  if(LOCATION_NAME)document.getElementById('loc-btn-text').textContent=LOCATION_NAME;
+  loadTaskBubble();addGPSBubble();loadLocations();
 }
-
-
-async function showHistory() {
-  document.getElementById('history-overlay').classList.add('show');
-  var res = await fetch(API+'/search/history/'+USER_ID);
-  var data = await res.json();
-  var list = document.getElementById('history-list');
-  if (!data.history || !data.history.length) {
-    list.innerHTML = '<div style="text-align:center;color:#999;padding:20px">No nudges yet — simulate a journey!</div>';
-    return;
-  }
-  var icons = {arrival:'📍', dwell:'⏰', exit:'🚨'};
-  list.innerHTML = data.history.map(function(h) {
-    var d = new Date(h.time);
-    var timeStr = d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    return '<div style="padding:10px 0;border-bottom:0.5px solid #f0f0f0">' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
-        '<span style="font-size:16px">'+(icons[h.trigger]||'🔔')+'</span>' +
-        '<span style="font-size:12px;font-weight:500;color:#075E54">'+h.location+'</span>' +
-        '<span style="font-size:10px;color:#999;margin-left:auto">'+timeStr+'</span>' +
-      '</div>' +
-      '<div style="font-size:13px;color:#333;margin-left:24px">'+h.message+'</div>' +
-      '<div style="font-size:10px;color:#999;margin-left:24px;margin-top:2px">'+h.trigger+' · '+h.task+'</div>' +
-    '</div>';
-  }).join('');
-}
-
-function hideHistory() {
-  document.getElementById('history-overlay').classList.remove('show');
-}
-
-async function showStats() {
-  var res = await fetch(API+'/stats/'+USER_ID);
-  var data = await res.json();
-  console.log('Stats:', data);
-  addSystem('📊 '+data.locations+' locations · '+data.total_tasks+' tasks · '+data.nudges_fired+' nudges fired');
-}
-
-
 init();
 </script>
-
-<div class="loc-overlay" id="history-overlay" onclick="hideHistory()">
-  <div class="loc-sheet" onclick="event.stopPropagation()">
-    <div class="loc-sheet-title">
-      <span>📜 Nudge history</span>
-      <span onclick="hideHistory()" style="cursor:pointer;color:#999;font-size:24px">&times;</span>
-    </div>
-    <div class="loc-sheet-sub">All reminders fired across your locations</div>
-    <div id="history-list">Loading...</div>
-  </div>
-</div>
-
 </body>
 </html>
