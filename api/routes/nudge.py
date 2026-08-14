@@ -10,11 +10,21 @@ load_dotenv()
 
 router = APIRouter()
 
-def generate_nudge_groq(trigger_type: str, tasks: list, location_name: str) -> str:
+def generate_nudge_groq(trigger_type: str, tasks: list, location_name: str, elder_mode: bool = False) -> str:
     count = len(tasks)
     first = tasks[0]["title"] if tasks else "your items"
     task_list = ", ".join([t["title"] for t in tasks[:3]])
-    prompt = f"""Generate ONE short friendly reminder (max 15 words).
+    if elder_mode:
+        prompt = f"""Generate ONE gentle warm reminder (max 15 words).
+Speak like a caring family member. No urgency. No warnings. No exclamation marks.
+Use soft words like "just a reminder", "when you get a chance", "no rush".
+Add one warm emoji like 🌸 😊 🌤
+Trigger: {trigger_type}
+Location: {location_name}
+Items: {task_list}
+Just the message, nothing else."""
+    else:
+        prompt = f"""Generate ONE short friendly reminder (max 15 words).
 Trigger: {trigger_type}
 Location: {location_name}
 Items: {task_list}
@@ -63,6 +73,7 @@ class NudgeRequest(BaseModel):
     user_id: str
     location_id: str
     trigger_type: str
+    elder_mode: bool = False
 
 @router.post("/generate")
 def generate_nudge_endpoint(payload: NudgeRequest):
@@ -79,7 +90,7 @@ def generate_nudge_endpoint(payload: NudgeRequest):
         return {"message": "All tasks completed!", "nudge": None}
     location_name = rows[0][2]
     tasks = [{"id": str(r[0]), "title": r[1]} for r in rows]
-    message = generate_nudge_groq(payload.trigger_type, tasks, location_name)
+    message = generate_nudge_groq(payload.trigger_type, tasks, location_name, payload.elder_mode)
     cur.execute("""
         INSERT INTO nudge_events (user_id, task_id, trigger_type, message, delivered)
         VALUES (%s, %s, %s, %s, true)

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Context Memory">
+  <meta name="apple-mobile-web-app-title" content="MemBuddy">
   <meta name="theme-color" content="#075E54">
-  <title>Context Memory</title>
+  <title>MemBuddy</title>
   <link rel="manifest" href="/static/manifest.json">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -139,7 +139,7 @@
 <div class="status-bar"><span id="clock">12:00</span><span>GPS</span></div>
 <header>
   <div class="avatar" id="loc-avatar">📍</div>
-  <div class="hinfo"><div class="hname">Context Memory</div></div>
+  <div class="hinfo"><div class="hname">MemBuddy</div></div>
   <button class="loc-btn" onclick="showLocationSelector()" id="loc-btn">
     <span class="loc-btn-text" id="loc-btn-text">Select location</span><span>▾</span>
   </button>
@@ -151,6 +151,7 @@
   <button class="action-btn" onclick="startRealGPS()">📍 Real GPS</button>
   <button class="action-btn" onclick="showHistory()">📜 History</button>
   <button class="action-btn" onclick="resetDemo()">↺ Reset</button>
+  <button class="action-btn" id="elder-btn" onclick="toggleElderMode()" style="background:rgba(255,255,255,0.15)">🧓 Elder</button>
 </div>
 <div class="install-banner" id="install-banner">
   <div class="install-text">Add to Home Screen for full experience</div>
@@ -412,7 +413,7 @@ async function deleteTask(taskId){
 async function triggerEvent(type,lat,lng){
   if(!USER_ID||!LOCATION_ID)return;
   await fetch(API+'/location/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,event_type:type,lat:lat||LOCATION_LAT,lng:lng||LOCATION_LNG,dwell_minutes:type==='dwell'?10:0})});
-  var res=await fetch(API+'/nudge/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,trigger_type:type})});
+  var res=await fetch(API+'/nudge/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,trigger_type:type,elder_mode:elderMode})});
   var data=await res.json();
   if(data.nudge){addNudge(data.nudge,type);sendPush(type,data.nudge);}else{addSystem('✅ All tasks completed!');}
   loadTaskBubble();loadLocations();
@@ -504,6 +505,20 @@ async function resetDemo(){
   document.getElementById('chat').innerHTML='<div class="date-div"><span>Today</span></div><div class="bs">↺ Reset — '+(LOCATION_NAME||'select a location')+' ready</div>';
   if(LOCATION_NAME)document.getElementById('loc-btn-text').textContent=LOCATION_NAME;
   loadTaskBubble();addGPSBubble();loadLocations();
+}
+var elderMode = false;
+function toggleElderMode() {
+  elderMode = !elderMode;
+  var btn = document.getElementById('elder-btn');
+  if (elderMode) {
+    btn.style.background = '#25D366';
+    btn.textContent = '🧓 Elder ON';
+    addSystem('🌸 Elder mode ON — gentle reminders enabled');
+  } else {
+    btn.style.background = 'rgba(255,255,255,0.15)';
+    btn.textContent = '🧓 Elder';
+    addSystem('👤 Standard mode — normal reminders');
+  }
 }
 init();
 </script>
