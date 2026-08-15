@@ -69,3 +69,25 @@ def list_locations(user_id: str):
         })
     conn.close()
     return {"locations": result}
+
+class LocationDelete(BaseModel):
+    location_id: str
+    user_id: str
+
+@router.delete("/delete")
+def delete_location(payload: LocationDelete):
+    conn = get_connection()
+    cur = conn.cursor()
+    # Delete tasks first (foreign key)
+    cur.execute("DELETE FROM tasks WHERE location_id = %s AND user_id = %s", 
+                (payload.location_id, payload.user_id))
+    # Delete location events
+    cur.execute("DELETE FROM location_events WHERE location_id = %s AND user_id = %s",
+                (payload.location_id, payload.user_id))
+    # Delete location
+    cur.execute("DELETE FROM locations WHERE id = %s AND user_id = %s RETURNING name",
+                (payload.location_id, payload.user_id))
+    row = cur.fetchone()
+    conn.commit()
+    conn.close()
+    return {"status": "deleted", "location": row[0] if row else None}

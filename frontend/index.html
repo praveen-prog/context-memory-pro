@@ -262,7 +262,7 @@ function renderLocationList(){
     return '<div class="loc-item" onclick="selectLocationById(\''+loc.id+'\')">'+
       '<div class="loc-icon-circle" style="background:'+color+'">'+emoji+'</div>'+
       '<div class="loc-info"><div class="loc-name">'+loc.name+'</div><div class="loc-addr">'+(loc.address||'')+'</div></div>'+
-      '<div class="loc-right"><span class="loc-badge" style="background:'+color+';color:#555">'+pt+'</span>'+(isActive?'<span class="loc-active-mark">✓</span>':'')+'</div>'+
+      '<div class="loc-right"><span class="loc-badge" style="background:'+color+';color:#555">'+pt+'</span>'+(isActive?'<span class="loc-active-mark">✓</span>':'<button onclick="event.stopPropagation();deleteLocation(\''+loc.id+'\')" style="background:none;border:none;color:#f44336;font-size:14px;cursor:pointer;padding:2px">🗑</button>')+'</div>'+
     '</div>';
   }).join('');
 }
@@ -518,6 +518,22 @@ function toggleElderMode() {
     btn.style.background = 'rgba(255,255,255,0.15)';
     btn.textContent = '🧓 Elder';
     addSystem('👤 Standard mode — normal reminders');
+  }
+}
+async function deleteLocation(locationId) {
+  if (!confirm('Delete this location and all its tasks?')) return;
+  var res = await fetch(API+'/location/delete', {
+    method: 'DELETE',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({location_id: locationId, user_id: USER_ID})
+  });
+  var data = await res.json();
+  if (data.status === 'deleted') {
+    addSystem('🗑 ' + data.location + ' deleted');
+    await loadLocations();
+    if (LOCATION_ID === locationId) {
+      if (LOCATIONS.length > 0) selectLocation(LOCATIONS[0]);
+    }
   }
 }
 init();
