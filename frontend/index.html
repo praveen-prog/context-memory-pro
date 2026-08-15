@@ -54,7 +54,6 @@
     .check-btn { background:#25D366; color:white; border:none; border-radius:16px; padding:4px 10px; font-size:11px; cursor:pointer; white-space:nowrap; }
     .check-btn:active { background:#1da851; transform: scale(0.95); }
     .edit-btn { background:#f0f0f0; color:#555; border:none; border-radius:16px; padding:4px 8px; font-size:11px; cursor:pointer; }
-    .edit-btn:active { background:#ddd; }
     .done-mark { color:#25D366; font-size:16px; font-weight:bold; }
     .task-footer { font-size:9px; color:#999; margin-top:6px; text-align:right; }
     .edit-row { display:flex; gap:4px; align-items:center; padding:4px 0; width:100%; }
@@ -71,11 +70,10 @@
     .gps-step { font-size:10px; color:#555; margin-top:4px; text-align:center; }
     .loc-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100; display:none; align-items:flex-end; justify-content:center; }
     .loc-overlay.show { display:flex; }
-    .loc-sheet { background:white; border-radius:20px 20px 0 0; width:100%; max-width:480px; padding:16px; max-height:75vh; overflow-y:auto; }
+    .loc-sheet { background:white; border-radius:20px 20px 0 0; width:100%; max-width:480px; padding:16px; max-height:80vh; overflow-y:auto; }
     .loc-sheet-title { font-size:15px; font-weight:600; color:#333; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; }
     .loc-sheet-sub { font-size:11px; color:#999; margin-bottom:12px; }
     .loc-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:0.5px solid #f0f0f0; cursor:pointer; }
-    .loc-item:active { background: #f9f9f9; }
     .loc-item:last-child { border-bottom:none; }
     .loc-icon-circle { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
     .loc-info { flex:1; }
@@ -143,7 +141,7 @@
   <button class="loc-btn" onclick="showLocationSelector()" id="loc-btn">
     <span class="loc-btn-text" id="loc-btn-text">Select location</span><span>▾</span>
   </button>
-  <div class="hicons">🔍 ⋮</div>
+  <div class="hicons"><span onclick="showSearch()" style="cursor:pointer">🔍</span> ⋮</div>
 </header>
 <div class="gps-bar"><div class="gps-dot" id="gps-dot"></div><span id="gps-label">Select a location to start</span></div>
 <div class="action-bar">
@@ -151,7 +149,7 @@
   <button class="action-btn" onclick="startRealGPS()">📍 Real GPS</button>
   <button class="action-btn" onclick="showHistory()">📜 History</button>
   <button class="action-btn" onclick="resetDemo()">↺ Reset</button>
-  <button class="action-btn" id="elder-btn" onclick="toggleElderMode()" style="background:rgba(255,255,255,0.15)">🧓 Elder</button>
+  <button class="action-btn" id="elder-btn" onclick="toggleElderMode()">🧓 Elder</button>
 </div>
 <div class="install-banner" id="install-banner">
   <div class="install-text">Add to Home Screen for full experience</div>
@@ -161,6 +159,23 @@
   <div class="date-div"><span>Today</span></div>
   <div class="bs">Tap the location button above to get started 📍</div>
 </div>
+
+<!-- Search overlay -->
+<div class="loc-overlay" id="search-overlay" onclick="hideSearch()">
+  <div class="loc-sheet" onclick="event.stopPropagation()">
+    <div class="loc-sheet-title">
+      <span>🔍 Search reminders</span>
+      <span onclick="hideSearch()" style="cursor:pointer;color:#999;font-size:24px">&times;</span>
+    </div>
+    <div class="loc-sheet-sub">Search across all your locations semantically</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input id="search-input" style="flex:1;border:1.5px solid #ddd;border-radius:10px;padding:10px 14px;font-size:13px;outline:none" placeholder="e.g. medicine, key, milk..." />
+      <button onclick="doSearch()" style="padding:10px 16px;background:#075E54;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer">Search</button>
+    </div>
+    <div id="search-results"></div>
+  </div>
+</div>
+
 <!-- Location selector -->
 <div class="loc-overlay" id="loc-overlay" onclick="hideLocationSelector()">
   <div class="loc-sheet" onclick="event.stopPropagation()">
@@ -170,6 +185,7 @@
     <div class="add-loc-btn" onclick="showAddLocation()"><div class="add-loc-icon">+</div><span>Add new location</span></div>
   </div>
 </div>
+
 <!-- History overlay -->
 <div class="loc-overlay" id="history-overlay" onclick="hideHistory()">
   <div class="loc-sheet" onclick="event.stopPropagation()">
@@ -178,6 +194,7 @@
     <div id="history-list">Loading...</div>
   </div>
 </div>
+
 <!-- Add location modal -->
 <div class="add-loc-overlay" id="add-loc-overlay">
   <div class="add-loc-modal" onclick="event.stopPropagation()">
@@ -220,18 +237,21 @@
     </div>
   </div>
 </div>
+
 <div class="input-bar">
   <button class="mic-btn" id="mic-btn" onclick="toggleVoice()">🎤</button>
   <input class="task-input" id="task-input" placeholder="Type or speak a reminder..." />
   <button class="send-btn" onclick="addTask()">➤</button>
 </div>
+
 <script>
-var API = 'https://uw4aoqlpr4.execute-api.us-east-1.amazonaws.com';
-// var API = 'http://localhost:8002';
+var API='https://uw4aoqlpr4.execute-api.us-east-1.amazonaws.com';
+// var API='http://localhost:8002';
 var USER_ID='',LOCATION_ID='',LOCATION_LAT=12.9818475,LOCATION_LNG=80.2095872,LOCATION_NAME='',LOCATION_RADIUS=50;
 var LOCATIONS=[],watchId=null,dwellTimer=null,insideZone=false,simInterval=null,simStep=0;
 var notifyEnabled=false,deferredPrompt=null,recognition=null,isListening=false;
 var locRecognition=null,isLocListening=false,newLocLat=null,newLocLng=null,newLocRadius=100,currentTab='gps';
+var elderMode=false,editStore={};
 
 var LOC_EMOJIS={'home':'🏠','dmart':'🛒','hospital':'🏥','apollo':'🏥','office':'💼','school':'🏫','gym':'💪','airport':'✈️','default':'📍'};
 var LOC_COLORS={'home':'#E8F5E9','dmart':'#FFF3E0','hospital':'#E3F2FD','apollo':'#E3F2FD','office':'#F3E5F5','default':'#F5F5F5'};
@@ -252,7 +272,9 @@ async function init(){
   try{var res=await fetch(API+'/setup/ids');var data=await res.json();USER_ID=data.user_id;await loadLocations();if(LOCATIONS.length>0)selectLocation(LOCATIONS[0]);showStats();}
   catch(e){addSystem('Connecting...');}
 }
+
 async function loadLocations(){var res=await fetch(API+'/location/list/'+USER_ID);var data=await res.json();LOCATIONS=data.locations||[];renderLocationList();}
+
 function renderLocationList(){
   var list=document.getElementById('loc-list');
   if(!LOCATIONS.length){list.innerHTML='<div style="text-align:center;color:#999;padding:20px">No locations yet</div>';return;}
@@ -262,18 +284,24 @@ function renderLocationList(){
     return '<div class="loc-item" onclick="selectLocationById(\''+loc.id+'\')">'+
       '<div class="loc-icon-circle" style="background:'+color+'">'+emoji+'</div>'+
       '<div class="loc-info"><div class="loc-name">'+loc.name+'</div><div class="loc-addr">'+(loc.address||'')+'</div></div>'+
-      '<div class="loc-right"><span class="loc-badge" style="background:'+color+';color:#555">'+pt+'</span>'+(isActive?'<span class="loc-active-mark">✓</span>':'')+'<div style="display:flex;gap:4px;margin-top:4px">'+'<button onclick="event.stopPropagation();editLocation(\''+loc.id+'\',\''+loc.name+'\')" style="background:none;border:none;color:#075E54;font-size:13px;cursor:pointer;padding:2px">✏️</button>'+'<button onclick="event.stopPropagation();deleteLocation(\''+loc.id+'\')" style="background:none;border:none;color:#f44336;font-size:13px;cursor:pointer;padding:2px">🗑</button>'+'</div></div>'+
+      '<div class="loc-right">'+
+        '<span class="loc-badge" style="background:'+color+';color:#555">'+pt+'</span>'+
+        (isActive?'<span class="loc-active-mark">✓</span>':'')+
+        '<div style="display:flex;gap:4px;margin-top:2px">'+
+          '<button onclick="event.stopPropagation();editLocation(\''+loc.id+'\',\''+loc.name+'\')" style="background:none;border:none;color:#075E54;font-size:13px;cursor:pointer;padding:2px">✏️</button>'+
+          '<button onclick="event.stopPropagation();deleteLocation(\''+loc.id+'\',\''+loc.name+'\')" style="background:none;border:none;color:#f44336;font-size:13px;cursor:pointer;padding:2px">🗑</button>'+
+        '</div>'+
+      '</div>'+
     '</div>';
   }).join('');
 }
+
 function selectLocationById(id){var loc=LOCATIONS.find(function(l){return l.id===id;});if(loc)selectLocation(loc);}
 function selectLocation(loc){
   LOCATION_ID=loc.id;LOCATION_LAT=loc.lat;LOCATION_LNG=loc.lng;LOCATION_NAME=loc.name;LOCATION_RADIUS=loc.radius_meters||100;
   var emoji=getLocEmoji(loc.name),color=getLocColor(loc.name);
-  document.getElementById('loc-avatar').textContent=emoji;
-  document.getElementById('loc-avatar').style.background=color;
-  document.getElementById('loc-btn-text').textContent=loc.name;
-  document.getElementById('gps-label').textContent='GPS ready — '+loc.name;
+  document.getElementById('loc-avatar').textContent=emoji;document.getElementById('loc-avatar').style.background=color;
+  document.getElementById('loc-btn-text').textContent=loc.name;document.getElementById('gps-label').textContent='GPS ready — '+loc.name;
   hideLocationSelector();
   document.getElementById('chat').innerHTML='<div class="date-div"><span>Today</span></div><div class="bs">'+emoji+' '+loc.name+' selected</div>';
   loadTaskBubble();addGPSBubble();
@@ -281,6 +309,66 @@ function selectLocation(loc){
 function showLocationSelector(){renderLocationList();document.getElementById('loc-overlay').classList.add('show');}
 function hideLocationSelector(){document.getElementById('loc-overlay').classList.remove('show');}
 
+// ── Search ────────────────────────────────────────────────────
+function showSearch(){
+  document.getElementById('search-overlay').classList.add('show');
+  document.getElementById('search-input').focus();
+  document.getElementById('search-results').innerHTML='';
+}
+function hideSearch(){document.getElementById('search-overlay').classList.remove('show');}
+async function doSearch(){
+  var query=document.getElementById('search-input').value.trim();if(!query)return;
+  var rd=document.getElementById('search-results');
+  rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">Searching...</div>';
+  var res=await fetch(API+'/search/similar',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user_id:USER_ID,query:query,limit:5})});
+  var data=await res.json();
+  if(!data.results||!data.results.length){
+    rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">No results found for "'+query+'"</div>';return;
+  }
+  rd.innerHTML='<div style="font-size:11px;color:#075E54;font-weight:500;margin-bottom:8px">'+
+    (data.mode==='vector'?'✨ Semantic results':'🔍 Keyword results')+' for "'+query+'"</div>'+
+  data.results.map(function(r){
+    var emoji=getLocEmoji(r.location);
+    var sim=r.similarity?Math.round(r.similarity*100)+'% match':'';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #f0f0f0;cursor:pointer" onclick="hideSearch();selectLocationByName(\''+r.location+'\')">'+
+      '<span style="font-size:20px">'+emoji+'</span>'+
+      '<div style="flex:1"><div style="font-size:13px;font-weight:500">'+r.title+'</div>'+
+      '<div style="font-size:11px;color:#999">'+r.location+(sim?' · '+sim:'')+'</div></div>'+
+      '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:'+(r.status==='completed'?'#E8F5E9':'#FFF3E0')+';color:'+(r.status==='completed'?'#2e7d32':'#BA7517')+'">'+r.status+'</span>'+
+    '</div>';
+  }).join('');
+}
+function selectLocationByName(name){var loc=LOCATIONS.find(function(l){return l.name===name;});if(loc)selectLocation(loc);}
+
+// ── Elder mode ────────────────────────────────────────────────
+function toggleElderMode(){
+  elderMode=!elderMode;
+  var btn=document.getElementById('elder-btn');
+  if(elderMode){btn.style.background='#25D366';btn.textContent='🧓 Elder ON';addSystem('🌸 Elder mode ON — gentle reminders enabled');}
+  else{btn.style.background='rgba(255,255,255,0.15)';btn.textContent='🧓 Elder';addSystem('👤 Standard mode — normal reminders');}
+}
+
+// ── Location edit/delete ──────────────────────────────────────
+async function editLocation(locationId,currentName){
+  var newName=prompt('Rename location:',currentName);
+  if(!newName||newName===currentName)return;
+  var res=await fetch(API+'/location/update',{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({location_id:locationId,user_id:USER_ID,name:newName})});
+  var data=await res.json();
+  if(data.status==='updated'){addSystem('✏️ Renamed to '+newName);await loadLocations();
+    if(LOCATION_ID===locationId){LOCATION_NAME=newName;document.getElementById('loc-btn-text').textContent=newName;document.getElementById('gps-label').textContent='GPS ready — '+newName;}}
+}
+async function deleteLocation(locationId,locationName){
+  if(!confirm('Delete "'+locationName+'" and all its tasks?'))return;
+  var res=await fetch(API+'/location/delete',{method:'DELETE',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({location_id:locationId,user_id:USER_ID})});
+  var data=await res.json();
+  if(data.status==='deleted'){addSystem('🗑 '+locationName+' deleted');await loadLocations();
+    if(LOCATION_ID===locationId&&LOCATIONS.length>0)selectLocation(LOCATIONS[0]);}
+}
+
+// ── Tab switching ─────────────────────────────────────────────
 function switchTab(tab){
   currentTab=tab;var isGps=tab==='gps';
   document.getElementById('tab-gps-content').style.display=isGps?'block':'none';
@@ -288,11 +376,13 @@ function switchTab(tab){
   document.getElementById('tab-gps-btn').className='tab-btn '+(isGps?'active':'inactive');
   document.getElementById('tab-search-btn').className='tab-btn '+(isGps?'inactive':'active');
 }
+
+// ── Place search ──────────────────────────────────────────────
 async function searchPlace(){
   var query=document.getElementById('place-search-input').value.trim();if(!query)return;
   var rd=document.getElementById('place-results');rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">Searching...</div>';
   try{
-    var res=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(query)+'&format=json&limit=5&countrycodes=in',{headers:{'Accept-Language':'en','User-Agent':'ContextMemoryApp'}});
+    var res=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(query)+'&format=json&limit=5&countrycodes=in',{headers:{'Accept-Language':'en','User-Agent':'MemBuddyApp'}});
     var data=await res.json();
     if(!data.length){rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">No results. Try a more specific name.</div>';return;}
     rd.innerHTML=data.map(function(p){
@@ -303,38 +393,34 @@ async function searchPlace(){
         '<div style="font-size:10px;color:#999;margin-top:2px">'+parseFloat(p.lat).toFixed(4)+'°N '+parseFloat(p.lon).toFixed(4)+'°E</div>'+
       '</div>';
     }).join('');
-  }catch(e){rd.innerHTML='<div style="color:#f44336;font-size:12px;padding:10px">Search failed. Check connection.</div>';}
+  }catch(e){rd.innerHTML='<div style="color:#f44336;font-size:12px;padding:10px">Search failed.</div>';}
 }
 function selectPlace(lat,lng,name){
   newLocLat=parseFloat(lat);newLocLng=parseFloat(lng);
   document.getElementById('place-results').innerHTML='<div style="background:#E8F5E9;border-radius:8px;padding:10px;font-size:12px;color:#2e7d32;margin-bottom:4px">✓ '+name+'<br><span style="font-size:10px">'+parseFloat(lat).toFixed(4)+'°N '+parseFloat(lng).toFixed(4)+'°E</span></div>';
   document.getElementById('save-loc-btn').disabled=false;
   if(!document.getElementById('new-loc-name').value)document.getElementById('new-loc-name').value=name.split(',')[0].trim();
-  switchTab('gps');
-  document.getElementById('gps-status-text').textContent='✓ Location found via search';
+  switchTab('gps');document.getElementById('gps-status-text').textContent='✓ Location found via search';
   document.getElementById('gps-status-coords').textContent=parseFloat(lat).toFixed(4)+'°N '+parseFloat(lng).toFixed(4)+'°E';
 }
 function showAddLocation(){
   hideLocationSelector();newLocLat=null;newLocLng=null;switchTab('gps');
   document.getElementById('new-loc-name').value='';document.getElementById('place-search-input').value='';
   document.getElementById('place-results').innerHTML='';
-  document.getElementById('gps-status-text').textContent='Capturing GPS...';
-  document.getElementById('gps-status-coords').textContent='';
-  document.getElementById('save-loc-btn').disabled=true;
-  document.getElementById('add-loc-overlay').classList.add('show');
+  document.getElementById('gps-status-text').textContent='Capturing GPS...';document.getElementById('gps-status-coords').textContent='';
+  document.getElementById('save-loc-btn').disabled=true;document.getElementById('add-loc-overlay').classList.add('show');
   selectRadius('office',100);
   if(!navigator.geolocation){document.getElementById('gps-status-text').textContent='GPS not supported';return;}
   navigator.geolocation.getCurrentPosition(
     function(pos){newLocLat=pos.coords.latitude;newLocLng=pos.coords.longitude;document.getElementById('gps-status-text').textContent='✓ GPS captured';document.getElementById('gps-status-coords').textContent=newLocLat.toFixed(4)+'°N '+newLocLng.toFixed(4)+'°E';document.getElementById('save-loc-btn').disabled=false;},
-    function(err){document.getElementById('gps-status-text').textContent='GPS unavailable — use Search tab';document.getElementById('gps-status-coords').textContent='Tap Search place to find location by name';document.getElementById('save-loc-btn').disabled=false;},
+    function(){document.getElementById('gps-status-text').textContent='GPS unavailable — use Search tab';document.getElementById('save-loc-btn').disabled=false;},
     {enableHighAccuracy:true,timeout:15000}
   );
 }
 function hideAddLocation(){document.getElementById('add-loc-overlay').classList.remove('show');}
 function selectRadius(type,radius){newLocRadius=radius;['home','office','store','hospital'].forEach(function(t){document.getElementById('r-'+t).classList.remove('active');});document.getElementById('r-'+type).classList.add('active');}
 async function saveNewLocation(){
-  var name=document.getElementById('new-loc-name').value.trim();
-  if(!name){document.getElementById('new-loc-name').focus();return;}
+  var name=document.getElementById('new-loc-name').value.trim();if(!name){document.getElementById('new-loc-name').focus();return;}
   if(!newLocLat&&!newLocLng){alert('Please capture GPS or search for a place first.');return;}
   var btn=document.getElementById('save-loc-btn');btn.textContent='Saving...';btn.disabled=true;
   var res=await fetch(API+'/location/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,name:name,lat:newLocLat||LOCATION_LAT,lng:newLocLng||LOCATION_LNG,radius_meters:newLocRadius,address:''})});
@@ -347,18 +433,19 @@ function toggleLocVoice(){
   if(isLocListening){locRecognition.stop();return;}
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;locRecognition=new SR();locRecognition.continuous=false;locRecognition.interimResults=true;locRecognition.lang='en-US';
   locRecognition.onstart=function(){isLocListening=true;document.getElementById('loc-voice-btn').classList.add('listening');};
-  locRecognition.onresult=function(e){var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');document.getElementById('new-loc-name').value=t;};
+  locRecognition.onresult=function(e){document.getElementById('new-loc-name').value=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');};
   locRecognition.onend=function(){isLocListening=false;document.getElementById('loc-voice-btn').classList.remove('listening');};
   locRecognition.onerror=function(){isLocListening=false;document.getElementById('loc-voice-btn').classList.remove('listening');};
   locRecognition.start();
 }
 
+// ── Chat helpers ──────────────────────────────────────────────
 function addSystem(text){var c=document.getElementById('chat');var d=document.createElement('div');d.className='bs';d.innerHTML=text;c.appendChild(d);c.scrollTop=c.scrollHeight;}
 function addBubble(text,side){var c=document.getElementById('chat');var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var d=document.createElement('div');d.className='bubble b'+side;d.innerHTML=text+'<div class="btime">'+t+(side==='l'?' ✓✓':'')+'</div>';c.appendChild(d);c.scrollTop=c.scrollHeight;}
 function addNudge(message,type){
   var c=document.getElementById('chat');var emojis={arrival:'📍',dwell:'⏰',exit:'🚨'};var labels={arrival:'Arrived',dwell:'Still inside',exit:'Leaving'};
   var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var d=document.createElement('div');d.className='nudge-bubble';
-  d.innerHTML='<div class="nudge-header"><span class="nudge-icon">'+(emojis[type]||'🔔')+'</span><span class="nudge-label">Context Memory • '+LOCATION_NAME+'</span></div><div class="nudge-text">'+message+'</div><div class="nudge-meta"><span>'+(labels[type]||type)+'</span><span>'+t+' ✓✓</span></div>';
+  d.innerHTML='<div class="nudge-header"><span class="nudge-icon">'+(emojis[type]||'🔔')+'</span><span class="nudge-label">MemBuddy • '+LOCATION_NAME+'</span></div><div class="nudge-text">'+message+'</div><div class="nudge-meta"><span>'+(labels[type]||type)+'</span><span>'+t+' ✓✓</span></div>';
   c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
 function addGPSBubble(){
@@ -380,15 +467,15 @@ async function loadTaskBubble(){
     return '<div class="task-row '+(t.status==='completed'?'done':'')+'" id="tr-'+t.id+'">'+
       '<span class="task-title">'+t.title+'</span>'+
       (t.status==='pending'
-        ? '<div class="task-btns"><button class="edit-btn" onclick="editTask(\''+t.id+'\',\''+escapedTitle+'\')">✏️</button><button class="edit-btn" style="color:#f44336" onclick="deleteTask(\''+t.id+'\')">🗑</button><button class="check-btn" onclick="completeTask(\''+t.id+'\', this)">Got it ✓</button></div>'
-        : '<span class="done-mark">✓</span>')+
+        ?'<div class="task-btns"><button class="edit-btn" onclick="editTask(\''+t.id+'\',\''+escapedTitle+'\')">✏️</button><button class="edit-btn" style="color:#f44336" onclick="deleteTask(\''+t.id+'\')">🗑</button><button class="check-btn" onclick="completeTask(\''+t.id+'\', this)">Got it ✓</button></div>'
+        :'<span class="done-mark">✓</span>')+
     '</div>';
   }).join('');
   d.innerHTML='<div class="task-header">'+emoji+' '+LOCATION_NAME+' — checklist</div>'+rows+'<div class="task-footer">Stored in CockroachDB • '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</div>';
   c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
 
-var editStore={};
+// ── Task edit/delete ──────────────────────────────────────────
 function editTask(taskId,currentTitle){
   var row=document.getElementById('tr-'+taskId);if(!row)return;
   editStore[taskId]=row.innerHTML;
@@ -396,20 +483,18 @@ function editTask(taskId,currentTitle){
   var inp=document.getElementById('ei-'+taskId);if(inp){inp.value=currentTitle;inp.focus();inp.select();}
 }
 async function saveEdit(taskId){
-  var inp=document.getElementById('ei-'+taskId);
-  var newTitle=inp?inp.value.trim():'';if(!newTitle)return;
+  var inp=document.getElementById('ei-'+taskId);var newTitle=inp?inp.value.trim():'';if(!newTitle)return;
   var res=await fetch(API+'/tasks/update',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({task_id:taskId,user_id:USER_ID,title:newTitle})});
-  var data=await res.json();
-  if(data.status==='updated'){addSystem('✏️ "'+newTitle+'" updated');}
+  var data=await res.json();if(data.status==='updated'){addSystem('✏️ "'+newTitle+'" updated');}
   loadTaskBubble();loadLocations();
 }
 function cancelEdit(taskId){var row=document.getElementById('tr-'+taskId);if(row&&editStore[taskId])row.innerHTML=editStore[taskId];}
 async function deleteTask(taskId){
-  if(!confirm('Delete this task?'))return;
   await fetch(API+'/tasks/delete',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({task_id:taskId,user_id:USER_ID})});
   addSystem('🗑 Task deleted');loadTaskBubble();loadLocations();
 }
 
+// ── GPS ───────────────────────────────────────────────────────
 async function triggerEvent(type,lat,lng){
   if(!USER_ID||!LOCATION_ID)return;
   await fetch(API+'/location/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID,location_id:LOCATION_ID,event_type:type,lat:lat||LOCATION_LAT,lng:lng||LOCATION_LNG,dwell_minutes:type==='dwell'?10:0})});
@@ -432,7 +517,8 @@ function startRealGPS(){
       if(!isNaN(dist)){document.getElementById('gps-step').textContent=Math.round(dist)+'m from '+LOCATION_NAME;var m=document.getElementById('gps-marker');if(m){var p=dist<LOCATION_RADIUS?60:Math.max(5,50-(dist/200)*10);m.style.left=p+'%';}}
       var isHome=getLocType(LOCATION_NAME)==='home';
       if(isHome){if(dist<LOCATION_RADIUS&&!insideZone){insideZone=true;addSystem('🏠 You are home');triggerEvent('arrival',lat,lng);}else if(dist>LOCATION_RADIUS*1.5&&insideZone){insideZone=false;addSystem('🚨 Leaving home!');triggerEvent('exit',lat,lng);}}
-      else{if(dist<LOCATION_RADIUS&&!insideZone){insideZone=true;addSystem('📍 Arrived at '+LOCATION_NAME);triggerEvent('arrival',lat,lng);dwellTimer=setTimeout(function(){if(insideZone)triggerEvent('dwell',lat,lng);},10*60*1000);}else if(dist>LOCATION_RADIUS*1.5&&insideZone){insideZone=false;clearTimeout(dwellTimer);addSystem('👋 Left '+LOCATION_NAME);triggerEvent('exit',lat,lng);}}
+      else{if(dist<LOCATION_RADIUS&&!insideZone){insideZone=true;addSystem('📍 Arrived at '+LOCATION_NAME);triggerEvent('arrival',lat,lng);dwellTimer=setTimeout(function(){if(insideZone)triggerEvent('dwell',lat,lng);},10*60*1000);}
+      else if(dist>LOCATION_RADIUS*1.5&&insideZone){insideZone=false;clearTimeout(dwellTimer);addSystem('👋 Left '+LOCATION_NAME);triggerEvent('exit',lat,lng);}}
     },
     function(err){addSystem('GPS error: '+err.message);},{enableHighAccuracy:true,maximumAge:3000,timeout:15000}
   );
@@ -468,7 +554,7 @@ function toggleVoice(){
   if(isListening){recognition.stop();return;}
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;recognition=new SR();recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
   recognition.onstart=function(){isListening=true;document.getElementById('mic-btn').classList.add('listening');document.getElementById('task-input').placeholder='🎤 Listening...';addSystem('🎤 Speak your reminders...');};
-  recognition.onresult=function(e){var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');document.getElementById('task-input').value=t;};
+  recognition.onresult=function(e){document.getElementById('task-input').value=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');};
   recognition.onend=function(){isListening=false;document.getElementById('mic-btn').classList.remove('listening');document.getElementById('task-input').placeholder='Type or speak a reminder...';var text=document.getElementById('task-input').value.trim();if(text)processVoice(text);};
   recognition.onerror=function(e){isListening=false;document.getElementById('mic-btn').classList.remove('listening');addSystem('Voice error: '+e.error);};recognition.start();
 }
@@ -491,12 +577,12 @@ async function showStats(){
 }
 function requestNotify(){
   if(!('Notification' in window)){addSystem('Notifications not supported here');return;}
-  Notification.requestPermission().then(function(p){if(p==='granted'){notifyEnabled=true;addSystem('🔔 Notifications enabled!');new Notification('Context Memory',{body:'You will receive reminders at the right moment!'});}else{addSystem('Notifications blocked — check browser settings');}});
+  Notification.requestPermission().then(function(p){if(p==='granted'){notifyEnabled=true;addSystem('🔔 Notifications enabled!');new Notification('MemBuddy',{body:'You will receive reminders at the right moment!'});}else{addSystem('Notifications blocked — check browser settings');}});
 }
 function sendPush(type,message){
   if(!notifyEnabled||Notification.permission!=='granted')return;
   var titles={arrival:'📍 Arrived',dwell:'⏰ Still here?',exit:'🚨 Leaving!',done:'✅ Done'};
-  new Notification((titles[type]||'Context Memory')+' — '+LOCATION_NAME,{body:message,tag:'cm',renotify:true});
+  new Notification((titles[type]||'MemBuddy')+' — '+LOCATION_NAME,{body:message,tag:'cm',renotify:true});
 }
 async function resetDemo(){
   await fetch(API+'/reset',{method:'POST'});insideZone=false;
@@ -505,55 +591,6 @@ async function resetDemo(){
   document.getElementById('chat').innerHTML='<div class="date-div"><span>Today</span></div><div class="bs">↺ Reset — '+(LOCATION_NAME||'select a location')+' ready</div>';
   if(LOCATION_NAME)document.getElementById('loc-btn-text').textContent=LOCATION_NAME;
   loadTaskBubble();addGPSBubble();loadLocations();
-}
-var elderMode = false;
-function toggleElderMode() {
-  elderMode = !elderMode;
-  var btn = document.getElementById('elder-btn');
-  if (elderMode) {
-    btn.style.background = '#25D366';
-    btn.textContent = '🧓 Elder ON';
-    addSystem('🌸 Elder mode ON — gentle reminders enabled');
-  } else {
-    btn.style.background = 'rgba(255,255,255,0.15)';
-    btn.textContent = '🧓 Elder';
-    addSystem('👤 Standard mode — normal reminders');
-  }
-}
-async function editLocation(locationId, currentName) {
-  var newName = prompt('Rename location:', currentName);
-  if (!newName || newName === currentName) return;
-  var res = await fetch(API+'/location/update', {
-    method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({location_id: locationId, user_id: USER_ID, name: newName})
-  });
-  var data = await res.json();
-  if (data.status === 'updated') {
-    addSystem('✏️ Renamed to ' + newName);
-    await loadLocations();
-    if (LOCATION_ID === locationId) {
-      LOCATION_NAME = newName;
-      document.getElementById('loc-btn-text').textContent = newName;
-      document.getElementById('gps-label').textContent = 'GPS ready — ' + newName;
-    }
-  }
-}
-async function deleteLocation(locationId) {
-  if (!confirm('Delete this location and all its tasks?')) return;
-  var res = await fetch(API+'/location/delete', {
-    method: 'DELETE',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({location_id: locationId, user_id: USER_ID})
-  });
-  var data = await res.json();
-  if (data.status === 'deleted') {
-    addSystem('🗑 ' + data.location + ' deleted');
-    await loadLocations();
-    if (LOCATION_ID === locationId) {
-      if (LOCATIONS.length > 0) selectLocation(LOCATIONS[0]);
-    }
-  }
 }
 init();
 </script>
