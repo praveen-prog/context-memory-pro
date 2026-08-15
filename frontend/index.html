@@ -262,7 +262,7 @@ function renderLocationList(){
     return '<div class="loc-item" onclick="selectLocationById(\''+loc.id+'\')">'+
       '<div class="loc-icon-circle" style="background:'+color+'">'+emoji+'</div>'+
       '<div class="loc-info"><div class="loc-name">'+loc.name+'</div><div class="loc-addr">'+(loc.address||'')+'</div></div>'+
-      '<div class="loc-right"><span class="loc-badge" style="background:'+color+';color:#555">'+pt+'</span>'+(isActive?'<span class="loc-active-mark">✓</span>':'<button onclick="event.stopPropagation();deleteLocation(\''+loc.id+'\')" style="background:none;border:none;color:#f44336;font-size:14px;cursor:pointer;padding:2px">🗑</button>')+'</div>'+
+      '<div class="loc-right"><span class="loc-badge" style="background:'+color+';color:#555">'+pt+'</span>'+(isActive?'<span class="loc-active-mark">✓</span>':'')+'<div style="display:flex;gap:4px;margin-top:4px">'+'<button onclick="event.stopPropagation();editLocation(\''+loc.id+'\',\''+loc.name+'\')" style="background:none;border:none;color:#075E54;font-size:13px;cursor:pointer;padding:2px">✏️</button>'+'<button onclick="event.stopPropagation();deleteLocation(\''+loc.id+'\')" style="background:none;border:none;color:#f44336;font-size:13px;cursor:pointer;padding:2px">🗑</button>'+'</div></div>'+
     '</div>';
   }).join('');
 }
@@ -518,6 +518,25 @@ function toggleElderMode() {
     btn.style.background = 'rgba(255,255,255,0.15)';
     btn.textContent = '🧓 Elder';
     addSystem('👤 Standard mode — normal reminders');
+  }
+}
+async function editLocation(locationId, currentName) {
+  var newName = prompt('Rename location:', currentName);
+  if (!newName || newName === currentName) return;
+  var res = await fetch(API+'/location/update', {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({location_id: locationId, user_id: USER_ID, name: newName})
+  });
+  var data = await res.json();
+  if (data.status === 'updated') {
+    addSystem('✏️ Renamed to ' + newName);
+    await loadLocations();
+    if (LOCATION_ID === locationId) {
+      LOCATION_NAME = newName;
+      document.getElementById('loc-btn-text').textContent = newName;
+      document.getElementById('gps-label').textContent = 'GPS ready — ' + newName;
+    }
   }
 }
 async function deleteLocation(locationId) {

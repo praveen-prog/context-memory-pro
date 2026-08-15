@@ -91,3 +91,19 @@ def delete_location(payload: LocationDelete):
     conn.commit()
     conn.close()
     return {"status": "deleted", "location": row[0] if row else None}
+
+class LocationUpdate(BaseModel):
+    location_id: str
+    user_id: str
+    name: str
+
+@router.put("/update")
+def update_location(payload: LocationUpdate):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE locations SET name = %s WHERE id = %s AND user_id = %s RETURNING name",
+                (payload.name, payload.location_id, payload.user_id))
+    row = cur.fetchone()
+    conn.commit()
+    conn.close()
+    return {"status": "updated", "name": row[0] if row else None}
