@@ -87,6 +87,8 @@ class TaskDelete(BaseModel):
 def delete_task(payload: TaskDelete):
     conn = get_connection()
     cur = conn.cursor()
+    cur.execute("DELETE FROM nudge_events WHERE task_id = %s", (payload.task_id,))
+    cur.execute("DELETE FROM task_completions WHERE task_id = %s", (payload.task_id,))
     cur.execute("DELETE FROM tasks WHERE id = %s AND user_id = %s RETURNING title",
                 (payload.task_id, payload.user_id))
     row = cur.fetchone()

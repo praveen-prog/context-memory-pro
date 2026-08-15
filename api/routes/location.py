@@ -78,8 +78,18 @@ class LocationDelete(BaseModel):
 def delete_location(payload: LocationDelete):
     conn = get_connection()
     cur = conn.cursor()
-    # Delete tasks first (foreign key)
-    cur.execute("DELETE FROM tasks WHERE location_id = %s AND user_id = %s", 
+    # Get task IDs first
+    cur.execute("SELECT id FROM tasks WHERE location_id = %s AND user_id = %s",
+                (payload.location_id, payload.user_id))
+    task_ids = [str(r[0]) for r in cur.fetchall()]
+    # Delete nudge_events for these tasks
+    for tid in task_ids:
+        cur.execute("DELETE FROM nudge_events WHERE task_id = %s", (tid,))
+    # Delete task_completions for these tasks
+    for tid in task_ids:
+        cur.execute("DELETE FROM task_completions WHERE task_id = %s", (tid,))
+    # Delete tasks
+    cur.execute("DELETE FROM tasks WHERE location_id = %s AND user_id = %s",
                 (payload.location_id, payload.user_id))
     # Delete location events
     cur.execute("DELETE FROM location_events WHERE location_id = %s AND user_id = %s",

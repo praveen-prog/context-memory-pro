@@ -160,19 +160,20 @@
   <div class="bs">Tap the location button above to get started 📍</div>
 </div>
 
-<!-- Search overlay -->
+<!-- Quick Add overlay -->
 <div class="loc-overlay" id="search-overlay" onclick="hideSearch()">
   <div class="loc-sheet" onclick="event.stopPropagation()">
     <div class="loc-sheet-title">
-      <span>🔍 Search reminders</span>
+      <span>&#9889; Quick add reminders</span>
       <span onclick="hideSearch()" style="cursor:pointer;color:#999;font-size:24px">&times;</span>
     </div>
-    <div class="loc-sheet-sub">Search across all your locations semantically</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <input id="search-input" style="flex:1;border:1.5px solid #ddd;border-radius:10px;padding:10px 14px;font-size:13px;outline:none" placeholder="e.g. medicine, key, milk..." />
-      <button onclick="doSearch()" style="padding:10px 16px;background:#075E54;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer">Search</button>
+    <div class="loc-sheet-sub" id="quick-add-sub">Common reminders for this location</div>
+    <div id="quick-add-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+    <div style="font-size:11px;color:#999;margin-bottom:6px">Or type a custom reminder:</div>
+    <div style="display:flex;gap:8px">
+      <input id="search-input" style="flex:1;border:1.5px solid #ddd;border-radius:10px;padding:10px 14px;font-size:13px;outline:none" placeholder="Custom reminder..." />
+      <button onclick="addCustomQuick()" style="padding:10px 16px;background:#075E54;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer">Add</button>
     </div>
-    <div id="search-results"></div>
   </div>
 </div>
 
@@ -310,37 +311,39 @@ function showLocationSelector(){renderLocationList();document.getElementById('lo
 function hideLocationSelector(){document.getElementById('loc-overlay').classList.remove('show');}
 
 // ── Search ────────────────────────────────────────────────────
+var QUICK_TASKS={home:['Pick keys','Pick wallet','Lock door','Turn off gas','Take laptop charger','Take medicines','Take umbrella','Charge phone'],store:['Buy milk','Buy eggs','Buy bread','Buy rice','Buy vegetables','Buy cooking oil','Buy fruits','Buy sugar','Buy salt','Buy soap','Buy shampoo'],hospital:['Carry insurance card','Take medicines','Get prescription','Check blood pressure','Carry ID proof','Take reports'],office:['Submit timesheet','Lock drawer','Take laptop charger','Carry ID card','Submit report','Take meeting notes'],default:['Take medicines','Carry keys','Carry wallet','Take phone charger','Carry documents']};
 function showSearch(){
   document.getElementById('search-overlay').classList.add('show');
-  document.getElementById('search-input').focus();
-  document.getElementById('search-results').innerHTML='';
-}
-function hideSearch(){document.getElementById('search-overlay').classList.remove('show');}
-async function doSearch(){
-  var query=document.getElementById('search-input').value.trim();if(!query)return;
-  var rd=document.getElementById('search-results');
-  rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">Searching...</div>';
-  var res=await fetch(API+'/search/similar',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user_id:USER_ID,query:query,limit:5})});
-  var data=await res.json();
-  if(!data.results||!data.results.length){
-    rd.innerHTML='<div style="color:#999;font-size:12px;padding:10px">No results found for "'+query+'"</div>';return;
-  }
-  rd.innerHTML='<div style="font-size:11px;color:#075E54;font-weight:500;margin-bottom:8px">'+
-    (data.mode==='vector'?'✨ Semantic results':'🔍 Keyword results')+' for "'+query+'"</div>'+
-  data.results.map(function(r){
-    var emoji=getLocEmoji(r.location);
-    var sim=r.similarity?Math.round(r.similarity*100)+'% match':'';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #f0f0f0;cursor:pointer" onclick="hideSearch();selectLocationByName(\''+r.location+'\')">'+
-      '<span style="font-size:20px">'+emoji+'</span>'+
-      '<div style="flex:1"><div style="font-size:13px;font-weight:500">'+r.title+'</div>'+
-      '<div style="font-size:11px;color:#999">'+r.location+(sim?' · '+sim:'')+'</div></div>'+
-      '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:'+(r.status==='completed'?'#E8F5E9':'#FFF3E0')+';color:'+(r.status==='completed'?'#2e7d32':'#BA7517')+'">'+r.status+'</span>'+
-    '</div>';
+  document.getElementById('search-input').value='';
+  var type=getLocType(LOCATION_NAME);
+  var tasks=QUICK_TASKS[type]||QUICK_TASKS['default'];
+  document.getElementById('quick-add-sub').textContent='Common reminders for '+LOCATION_NAME;
+  var list=document.getElementById('quick-add-list');
+  list.innerHTML=tasks.map(function(t){
+    return '<button data-task="'+t.replace(/"/g,'&quot;')+'" onclick="quickAddTask(this)" style="background:#f0f9f4;border:1.5px solid #075E54;border-radius:20px;padding:6px 14px;font-size:12px;color:#075E54;cursor:pointer;font-weight:500">+ '+t+'</button>';
   }).join('');
 }
-function selectLocationByName(name){var loc=LOCATIONS.find(function(l){return l.name===name;});if(loc)selectLocation(loc);}
-
+function hideSearch(){document.getElementById('search-overlay').classList.remove('show');}
+async function quickAddTask(btn){
+  if(btn.disabled)return;
+  btn.disabled=true;
+  var title=btn.getAttribute('data-task');
+  if(!LOCATION_ID){addSystem('Please select a location first');return;}
+  await saveTask(title);
+  addSystem('&#10003; "'+title+'" added to '+LOCATION_NAME);
+  loadTaskBubble();loadLocations();
+  btn.style.background='#25D366';btn.style.color='white';btn.style.borderColor='#25D366';
+  btn.textContent='✓ '+title;btn.onclick=null;
+}
+async function addCustomQuick(){
+  var input=document.getElementById('search-input');
+  var title=input.value.trim();if(!title)return;
+  var addBtn=input.nextElementSibling;if(addBtn)addBtn.disabled=true;
+  if(!LOCATION_ID){addSystem('Please select a location first');return;}
+  await saveTask(title);
+  addSystem('&#10003; "'+title+'" added to '+LOCATION_NAME);
+  input.value='';loadTaskBubble();loadLocations();
+}
 // ── Elder mode ────────────────────────────────────────────────
 function toggleElderMode(){
   elderMode=!elderMode;
